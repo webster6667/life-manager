@@ -1,0 +1,58 @@
+{
+  "extends": "@electron-toolkit/tsconfig/tsconfig.web.json",
+  "include": [
+    "custom.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.ts",
+    "src/preload/index.d.ts",
+    ".storybook/**/*"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "jsx": "react-jsx",
+    "noUnusedLocals": false,
+    "noImplicitReturns": false,
+    "strictNullChecks": false,
+    "baseUrl": ".",
+    "paths": {
+      "@renderer/*": [
+        "src/renderer/src/*"
+      ],
+      "@main/*": [
+        "src/main/*"
+      ],
+      "@common-shared/*": [
+        "src/common-shared/*"
+      ],
+      "@/*": [
+        "src/*"
+      ],
+
+      "@front-shared/*": [
+        "src/renderer/src/front-shared/*"
+      ],
+
+      "@my-storybook/*": [".storybook/*"],
+      "@story-book-utilities": [".storybook/utilities/index.ts"],
+
+      "@assets/*": ["src/renderer/src/assets/*"],
+      "@fonts/*": ["src/renderer/src/assets/fonts/*"],
+      "@icons/*": ["src/renderer/src/assets/img/icons/*"],
+      "@img/*": ["src/renderer/src/assets/img/*"],
+
+      "@global-styles": ["src/renderer/src/front-shared/styles/global-styles/index.ts"],
+      "@app-theme": ["src/renderer/src/front-shared/styles/theme/index.ts"],
+      "@mixins": ["src/renderer/src/front-shared/styles/mixins/index.ts"],
+      "@keyframes": ["src/renderer/src/front-shared/styles/keyframes/index.ts"],
+      "@styles-const": ["src/renderer/src/front-shared/styles/const/index.ts"],
+
+      "@ui-kit/*": ["src/renderer/src/front-shared/ui-kit/*"],
+      "@typography": ["src/renderer/src/front-shared/ui-kit/typography/index.ts"],
+      "@grid": ["src/renderer/src/front-shared/ui-kit/grid/index.ts"],
+      "@buttons/*": ["src/renderer/src/front-shared/ui-kit/button/*"],
+      "@inputs/*": ["src/renderer/src/front-shared/ui-kit/inputs/*"],
+      "@common-hook": ["src/renderer/src/front-shared/hooks/index.ts"]
+
+    }
+  }
+}

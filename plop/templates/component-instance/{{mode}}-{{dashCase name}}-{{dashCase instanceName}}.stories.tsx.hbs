@@ -1,0 +1,27 @@
+import React, { FC } from "react";
+import { Meta } from "@storybook/react";
+import { StoryObj } from "@storybook/react";
+
+import { {{pascalCase mode}}{{pascalCase name}}{{pascalCase instanceName}} } from "./{{mode}}-{{dashCase name}}-{{dashCase instanceName}}";
+import { {{pascalCase mode}}{{pascalCase name}}{{pascalCase instanceName}}Props } from "./types";
+
+export interface StoryProps  {}
+
+type LayoutProps = {{pascalCase mode}}{{pascalCase name}}{{pascalCase instanceName}}Props & StoryProps
+
+type StoryInstanceProps = StoryObj<LayoutProps>;
+
+export default {
+	title: "UI kit/{{pascalCase name}}/{{pascalCase mode}}/instances/{{pascalCase mode}}{{pascalCase name}}{{pascalCase instanceName}}",
+	component: {{pascalCase mode}}{{pascalCase name}}{{pascalCase instanceName}},
+	args: {},
+} as Meta<typeof {{pascalCase mode}}{{pascalCase name}}{{pascalCase instanceName}}>;
+
+export const Default: FC<LayoutProps> = ({ ...args }) => {
+	return (<{{pascalCase mode}}{{pascalCase name}}{{pascalCase instanceName}} {...args} />);
+}
+
+export const AnotherArgs: StoryInstanceProps = {
+	args: {},
+	render: props => <Default {...props} />
+};
