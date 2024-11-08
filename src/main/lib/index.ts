@@ -11,7 +11,7 @@ import {
 import path from 'path'
 import {
   CreateDirectory,
-  CreateFile,
+  WriteFile,
   ReadFile,
   DeleteFile,
   ReadDir
@@ -30,7 +30,7 @@ export const createDirectory: CreateDirectory = async (dirPath) => {
   }
 }
 
-export const createFile: CreateFile = async (filePath, content) => {
+export const createFile: WriteFile = async (filePath, content) => {
   const fullPath = path.resolve(rootDir, filePath)
 
   try {
@@ -47,6 +47,26 @@ export const createFile: CreateFile = async (filePath, content) => {
     }
   } catch (err) {
     console.error(`Error creating file at ${fullPath}:`, err)
+  }
+}
+
+export const updateFile: WriteFile = async (filePath, content) => {
+  const fullPath = path.resolve(rootDir, filePath)
+
+  try {
+    const fileExists = await pathExists(fullPath)
+    if (!fileExists) {
+      throw new Error(`File does not exist at ${fullPath}`)
+    }
+
+    try {
+      await outputFile(fullPath, content)
+      return filePath
+    } catch (err) {
+      throw new Error(`Failed to update file at ${fullPath}`)
+    }
+  } catch (err) {
+    console.error(`Error updating file at ${fullPath}:`, err)
   }
 }
 

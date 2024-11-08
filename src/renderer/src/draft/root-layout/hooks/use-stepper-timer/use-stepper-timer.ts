@@ -1,0 +1,48 @@
+import { useEffect } from 'react'
+
+import { useTimer } from 'react-timer-hook'
+import { UseStepperTimerProps } from '@renderer/draft/root-layout/hooks/use-stepper-timer/types'
+
+export const useStepperTimer = (props: UseStepperTimerProps) => {
+  const { onFinish, isPaused } = props || {}
+  const remainingSeconds = +window.localStorage.getItem('remainingSeconds') || 0
+  const expiryTimestamp = new Date()
+  expiryTimestamp.setSeconds(expiryTimestamp.getSeconds() + remainingSeconds)
+
+  const { totalSeconds, seconds, minutes, hours, days, isRunning, start, pause, resume, restart } =
+    useTimer({
+      expiryTimestamp,
+      onExpire: () => {
+        onFinish && onFinish()
+        window.localStorage.removeItem('remainingSeconds')
+      },
+      autoStart: isPaused ? false : remainingSeconds > 0
+    })
+
+  useEffect(() => {
+    window.localStorage.setItem('remainingSeconds', String(totalSeconds))
+  }, [totalSeconds])
+
+  const startWithSettings = (secondsToFinish: number) => {
+    const timerFinishTime = new Date()
+    timerFinishTime.setSeconds(timerFinishTime.getSeconds() + secondsToFinish)
+
+    window.localStorage.setItem('remainingSeconds', String(secondsToFinish))
+
+    restart(timerFinishTime, true)
+  }
+
+  return {
+    totalSeconds,
+    seconds,
+    minutes,
+    hours,
+    days,
+    isRunning,
+    start,
+    startWithSettings,
+    pause,
+    resume,
+    restart
+  }
+}

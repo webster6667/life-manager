@@ -20,6 +20,8 @@ if (!process.contextIsolated) {
       locale: navigator.language,
       createFile: (filePath: string, content: string) =>
         ipcRenderer.invoke('createFile', filePath, content),
+      updateFile: (filePath: string, content: string) =>
+        ipcRenderer.invoke('updateFile', filePath, content),
       readFile: (filePath: string) => ipcRenderer.invoke('readFile', filePath),
       readDir: (dirPath: string, params: ReadDirParams) =>
         ipcRenderer.invoke('readDir', dirPath, params),

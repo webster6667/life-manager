@@ -115,4 +115,29 @@ export default function (
         ]
     });
 
+    plop.setGenerator('Widget', {
+    description: 'Widget template',
+    prompts: [
+      {
+        type: 'input',
+        name: 'name',
+        message: 'Widget name'
+      },
+      {
+        type: 'input',
+        name: 'path',
+        message: 'Util path',
+        default: 'src/renderer/src/widgets'
+      }
+    ],
+    actions: [
+      {
+        type: 'addMany',
+        destination: "../{{path}}/{{kebabCase name}}",
+        base: `templates/widget/`,
+        templateFiles: 'templates/widget/*',
+      },
+    ]
+  });
+
 };

@@ -1,28 +1,29 @@
-import { createGlobalStyle } from 'styled-components'
-import {Fonts} from './fonts'
+import { css } from '@emotion/react'
+import { fonts } from './fonts'
 
-export const GlobalStyles = createGlobalStyle`
-  
-    ${Fonts}
-    
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+export const globalStyles = css`
+  ${fonts}
 
-    body {
-        margin: 0;
-        padding: 0;
-    }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-    *::before, *::after {
-        box-sizing: border-box;
-    }
-    
-    #root {
-        display: flex;
-        flex-direction: column;
-    }
+  body {
+    margin: 0;
+    padding: 0;
+  }
 
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100vh;
+  }
 `

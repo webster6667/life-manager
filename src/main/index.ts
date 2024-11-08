@@ -2,7 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { createDirectory, createFile, deleteFile, readDir, readFile } from './lib'
+import { createDirectory, createFile, deleteFile, readDir, readFile, updateFile } from './lib'
 import { ReadDirParams } from '../common-shared/types'
 
 function createWindow(): void {
@@ -54,6 +54,7 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
   ipcMain.handle('createFile', (_, ...args: Parameters<typeof createFile>) => createFile(...args))
+  ipcMain.handle('updateFile', (_, ...args: Parameters<typeof updateFile>) => updateFile(...args))
   ipcMain.handle('readFile', (_, filePath: string) => readFile(filePath))
   ipcMain.handle('readDir', (_, filePath: string, params: ReadDirParams) =>
     readDir(filePath, params)

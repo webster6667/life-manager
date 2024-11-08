@@ -41,7 +41,7 @@ declare module '*.ttf' {
 }
 
 import { ElectronAPI } from '@electron-toolkit/preload'
-import { ReadFile, CreateFile, CreateDirectory, DeleteFile, ReadDir } from '@common-shared/types'
+import { ReadFile, WriteFile, CreateDirectory, DeleteFile, ReadDir } from '@common-shared/types'
 
 declare global {
   interface Window {
@@ -50,7 +50,8 @@ declare global {
     context: {
       locale: string
       createDirectory: CreateDirectory
-      createFile: CreateFile
+      createFile: WriteFile
+      updateFile: WriteFile
       readFile: ReadFile
       readDir: ReadDir
       deleteFile: DeleteFile

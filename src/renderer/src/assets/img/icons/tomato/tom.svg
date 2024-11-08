@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with Vectornator (http://vectornator.io/) -->
+<svg height="100%" stroke-miterlimit="10" style="fill-rule:nonzero;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;" version="1.1" viewBox="0 0 67.2942 74.9536" width="100%" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"  xmlns:xlink="http://www.w3.org/1999/xlink" id="tomato">
+<defs/>
+<clipPath id="ArtboardFrame">
+<rect height="74.9536" width="67.2942" x="0" y="0"/>
+</clipPath>
+<g clip-path="url(#ArtboardFrame)" id="Без-названия" >
+<g opacity="1" >
+<path d="M66.5415 43.6313C66.5415 60.3533 51.7815 73.9073 33.5735 73.9073C15.3655 73.9073 0.605516 60.3523 0.605516 43.6313C0.605516 26.9103 15.3655 22.1003 33.5735 22.1003C51.7815 22.1003 66.5415 26.9093 66.5415 43.6313Z" fill="#000000" fill-rule="nonzero" opacity="1" stroke="none" />
+<path id="up" d="M37.1055 16.8863C37.1055 16.8863 43.1615 12.5133 44.0015 9.14927C44.0015 9.14927 38.4455 14.0633 34.1325 15.6553L34.1325 1.62627C34.1325 1.18227 33.8825 0.823268 33.5725 0.823268C33.2625 0.823268 33.0125 1.18127 33.0125 1.62627L33.0125 15.6553C28.6995 14.0623 23.1435 9.14927 23.1435 9.14927C23.9845 12.5133 30.0395 16.8863 30.0395 16.8863C26.6755 16.0453 16.9765 11.7833 16.9765 11.7833C22.1365 19.8573 33.5735 20.5303 33.5735 20.5303C33.5735 20.5303 45.0105 19.8573 50.1695 11.7833C50.1695 11.7833 40.4695 16.0453 37.1055 16.8863Z" fill="#000000" fill-rule="nonzero" opacity="1" stroke="none" />
+</g>
+</g>
+</svg>

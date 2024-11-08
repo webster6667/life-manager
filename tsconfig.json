@@ -4,8 +4,6 @@
     "custom.d.ts",
     "src/**/*.tsx",
     "src/**/*.ts",
-    "src/preload/index.d.ts",
-    ".storybook/**/*"
   ],
   "compilerOptions": {
     "composite": true,
