@@ -4,9 +4,10 @@ import { useDidMount } from '@common-hook'
 import { fileSystemAdapter } from '@renderer/api/fileSystemAdapter'
 import { createYearDaysTree } from '@renderer/widgets/pomodoro/sidebar/helpers/create-year-days-tree'
 import { getTreeDaysOfYear } from '@renderer/helpers/get-tree-days-of-year'
-import { getYear } from 'date-fns'
+import { getYear, isToday } from 'date-fns'
 import {
   Box,
+  Chip,
   CircularProgress,
   Collapse,
   Grid2 as Grid,
@@ -105,9 +106,11 @@ export const RootLayout: FC<HTMLProps<HTMLDivElement>> = () => {
             <Box key={monthNumber}>
               <ListItemButton
                 onClick={() => monthClickHandler(monthNumber)}
-                selected={isTodayMonth}
+                data-mn={monthNumber}
+                selected={+selectedDate.split('-')[1] == +monthNumber}
               >
-                <ListItemText primary={capitalize(getMonthNameByNumber(monthNumber))} />
+                <ListItemText primary={capitalize(getMonthNameByNumber(monthNumber))} />{' '}
+                {isTodayMonth && <Chip label="Текущий" color="primary" />}
                 {openMonthNumber == monthNumber ? <ExpandLess /> : <ExpandMore />}
               </ListItemButton>
               <Collapse in={openMonthNumber == monthNumber} timeout="auto" unmountOnExit>
@@ -122,7 +125,8 @@ export const RootLayout: FC<HTMLProps<HTMLDivElement>> = () => {
                         onClick={() => selectDateHandler(dateString)}
                         selected={selectedDate === dateString}
                       >
-                        <ListItemText primary={dateString} />
+                        <ListItemText primary={dateString} />{' '}
+                        {isToday(date) && <Chip label="Сегодня" color="primary" />}
                       </ListItemButton>
                     )
                   })}

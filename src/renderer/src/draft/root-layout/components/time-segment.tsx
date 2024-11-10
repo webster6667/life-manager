@@ -28,6 +28,7 @@ export const TimeSegment: FC<
     setDayData((draft) => {
       const currentStatus = draft.timeSegmentList[index].status
       draft.timeSegmentList[index].status = 'process'
+      draft.isPlanning = false
 
       if (currentStatus === 'paused') {
         timerData.startWithSettings(+timerData.totalSeconds || timeToFinish)

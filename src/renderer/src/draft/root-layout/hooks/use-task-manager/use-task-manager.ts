@@ -4,6 +4,7 @@ import { isEmpty } from 'lodash'
 import { getDefaultStepperLayout } from '@renderer/draft/root-layout/helpers/get-default-stepper-layout'
 import { useEffectAfterMount } from '@front-shared/hooks/use-effect-after-mount'
 import { fileSystemAdapter } from '@renderer/api/fileSystemAdapter'
+import finish from '@assets/sounds/finish.mp3'
 
 export const useTaskManager = (contentData: DateContent, selectedFilePath: string) => {
   const [dayData, setDayData] = useImmer<StepperData>(
@@ -170,6 +171,8 @@ export const useTaskManager = (contentData: DateContent, selectedFilePath: strin
       if (finishedStepIndex >= 0) {
         timeSegmentList[finishedStepIndex].status = 'finished'
         const nextStep = finishedStepIndex + 1
+        const finishSound = new Audio(finish)
+        finishSound.play()
 
         if (nextStep < timeSegmentList.length) {
           timeSegmentList[nextStep].status = 'waiting-start'

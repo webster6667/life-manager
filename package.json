@@ -24,6 +24,7 @@
     "generate": "cd plop && plop"
   },
   "dependencies": {
+    "@codemirror/lang-markdown": "^6.3.1",
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^3.0.0",
     "@emotion/react": "^11.13.3",
@@ -32,12 +33,15 @@
     "@mui/icons-material": "^6.1.6",
     "@mui/material": "^6.1.6",
     "@storybook/builder-vite": "^8.3.6",
+    "@uiw/react-codemirror": "^4.23.6",
     "date-fns": "^4.1.0",
     "electron-updater": "^6.1.7",
     "immer": "^10.1.1",
     "lodash": "^4.17.21",
+    "react-markdown": "^9.0.1",
     "react-router-dom": "^6.27.0",
     "react-timer-hook": "^3.0.8",
+    "remark-gfm": "^4.0.0",
     "styled-components": "^6.1.13",
     "tsconfig-paths-webpack-plugin": "^4.1.0",
     "use-immer": "^0.10.0",

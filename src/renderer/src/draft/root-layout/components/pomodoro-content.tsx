@@ -26,6 +26,7 @@ import { DateContent } from '@renderer/draft/root-layout/types'
 import { formatSecondsToRemainingTime } from '@renderer/draft/root-layout/helpers/format-seconds-to-remaining-time'
 import { useTaskManager } from '@renderer/draft/root-layout/hooks/use-task-manager'
 import { useStepper } from '@renderer/draft/root-layout/hooks/use-stepper'
+import { MarkdownEditor } from '@renderer/draft/root-layout/components/mark-down-editor'
 
 export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: string }> = ({
   contentData,
@@ -162,12 +163,12 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
                             onChange={(e) => updateTaskValue(id, e.target.value, activeStepIndex)}
                             fullWidth
                           />
-
-                          <TextareaAutosize
+                          <MarkdownEditor
                             value={description}
-                            onChange={(e) =>
-                              updateTaskDescription(id, e.target.value, activeStepIndex)
-                            }
+                            placeholder={`Задача номер ${index + 1}`}
+                            updateTaskValue={updateTaskDescription}
+                            id={id}
+                            activeStepIndex={activeStepIndex}
                           />
                         </Stack>
                         <Fab size="small" color="error" aria-label="add">
