@@ -11,6 +11,18 @@ export const useTaskManager = (contentData: DateContent, selectedFilePath: strin
     isEmpty(contentData) ? getDefaultStepperLayout() : (contentData as StepperData)
   )
 
+  useEffectAfterMount(() => {
+    const newContentData = isEmpty(contentData)
+      ? getDefaultStepperLayout()
+      : (contentData as StepperData)
+
+    setDayData(newContentData)
+  }, [selectedFilePath])
+
+  useEffectAfterMount(async () => {
+    await fileSystemAdapter.updateFile(selectedFilePath, JSON.stringify(dayData))
+  }, [JSON.stringify(dayData)])
+
   // Хендлер для добавления новой задачи в backlog или taskList в timeSegment
   const createNewTask = ({
     value,
@@ -198,10 +210,6 @@ export const useTaskManager = (contentData: DateContent, selectedFilePath: strin
       draft.skippedSeconds = draft.skippedSeconds + 1
     })
   }
-
-  useEffectAfterMount(async () => {
-    await fileSystemAdapter.updateFile(selectedFilePath, JSON.stringify(dayData))
-  }, [JSON.stringify(dayData)])
 
   return {
     dayData,

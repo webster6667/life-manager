@@ -3,9 +3,10 @@ import { useEffect, useRef, DependencyList } from 'react'
 export const useConditionsInterval = (
   conditions: DependencyList,
   intervalFn: () => void,
-  intervalTime: number = 1000
+  options: { intervalTime?: number; shouldClearAfterOnmount?: boolean } | undefined = {}
 ) => {
   const intervalId = useRef(null)
+  const { intervalTime = 1000 } = options
 
   useEffect(() => {
     if (conditions) {

@@ -1,8 +1,9 @@
 import { StepperData } from '@renderer/draft/root-layout/types'
-
-const defaultPomodoroTime = 1800
-const defaultCucumberTime = 600
-const defaultTomatoCount = 5
+import {
+  defaultCucumberTime,
+  defaultPomodoroTime,
+  defaultTomatoCount
+} from '@renderer/draft/root-layout/const'
 
 export const getDefaultStepperLayout = (): StepperData => {
   const steps: StepperData = {
@@ -18,13 +19,15 @@ export const getDefaultStepperLayout = (): StepperData => {
       type: 'tomato',
       status: i === 0 ? 'waiting-start' : 'not-started',
       taskList: [],
-      timeToFinish: defaultPomodoroTime
+      timeToFinish: defaultPomodoroTime,
+      additionalTime: 0
     })
     steps.timeSegmentList.push({
       type: 'cucumber',
       status: 'not-started',
       taskList: [],
-      timeToFinish: defaultCucumberTime
+      timeToFinish: defaultCucumberTime,
+      additionalTime: 0
     })
   }
 

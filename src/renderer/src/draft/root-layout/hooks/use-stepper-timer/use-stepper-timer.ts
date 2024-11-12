@@ -5,7 +5,7 @@ import { UseStepperTimerProps } from '@renderer/draft/root-layout/hooks/use-step
 
 export const useStepperTimer = (props: UseStepperTimerProps) => {
   const { onFinish, isPaused } = props || {}
-  const remainingSeconds = +window.localStorage.getItem('remainingSeconds') || 0
+  const remainingSeconds = +window.localStorage.getItem('remainingSeconds')
   const expiryTimestamp = new Date()
   expiryTimestamp.setSeconds(expiryTimestamp.getSeconds() + remainingSeconds)
 
@@ -16,20 +16,20 @@ export const useStepperTimer = (props: UseStepperTimerProps) => {
         onFinish && onFinish()
         window.localStorage.removeItem('remainingSeconds')
       },
-      autoStart: isPaused ? false : remainingSeconds > 0
+      autoStart: isPaused ? false : remainingSeconds >= 0
     })
 
   useEffect(() => {
     window.localStorage.setItem('remainingSeconds', String(totalSeconds))
   }, [totalSeconds])
 
-  const startWithSettings = (secondsToFinish: number) => {
+  const startWithSettings = (secondsToFinish: number, autoStart = true) => {
     const timerFinishTime = new Date()
     timerFinishTime.setSeconds(timerFinishTime.getSeconds() + secondsToFinish)
 
     window.localStorage.setItem('remainingSeconds', String(secondsToFinish))
 
-    restart(timerFinishTime, true)
+    restart(timerFinishTime, autoStart)
   }
 
   return {

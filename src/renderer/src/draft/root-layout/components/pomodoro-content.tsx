@@ -11,9 +11,12 @@ import {
   TextField,
   Button,
   Divider,
-  Stack
+  Stack,
+  ListItemButton,
+  ListItemText,
+  Collapse
 } from '@mui/material'
-import { Add, Remove, Delete } from '@mui/icons-material'
+import { Add, Remove, Delete, ExpandLess, ExpandMore } from '@mui/icons-material'
 import { TextareaAutosize } from './../components/TextareaAutosize'
 
 import { FC } from 'react'
@@ -27,11 +30,18 @@ import { formatSecondsToRemainingTime } from '@renderer/draft/root-layout/helper
 import { useTaskManager } from '@renderer/draft/root-layout/hooks/use-task-manager'
 import { useStepper } from '@renderer/draft/root-layout/hooks/use-stepper'
 import { MarkdownEditor } from '@renderer/draft/root-layout/components/mark-down-editor'
+import {
+  defaultAdditionalCucumberTime,
+  defaultAdditionalPomodoroTime
+} from '@renderer/draft/root-layout/const'
+
+import { useToggle } from '@common-hook'
 
 export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: string }> = ({
   contentData,
   selectedFilePath
 }) => {
+  const [isAdditionalTimeCountsOpen, toggleAdditionalTimeCountsOpen] = useToggle(false)
   const {
     dayData,
     setDayData,
@@ -54,6 +64,29 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
     onFinish: finishTimeSegment,
     isPaused
   })
+
+  const addTimeForTimeSegment = (timeSegmentIndex: number) => {
+    setDayData(({ timeSegmentList }) => {
+      const remainingSeconds = timerData.totalSeconds
+      if (timeSegmentIndex >= 0) {
+        const { type, status, timeToFinish } = timeSegmentList[timeSegmentIndex]
+        const additionalTime =
+          type === 'tomato' ? defaultAdditionalPomodoroTime : defaultAdditionalCucumberTime
+        timeSegmentList[timeSegmentIndex].timeToFinish = timeToFinish + additionalTime
+        timeSegmentList[timeSegmentIndex].additionalTime += additionalTime
+
+        if (status === 'process') {
+          timerData.startWithSettings(remainingSeconds + additionalTime)
+        } else if (status === 'finished' || status === 'paused') {
+          if (timeSegmentIndex < timeSegmentList.length - 1) {
+            timeSegmentList[timeSegmentIndex + 1].status = 'not-started'
+            timeSegmentList[timeSegmentIndex].status = 'paused'
+            timerData.startWithSettings(remainingSeconds + additionalTime, false)
+          }
+        }
+      }
+    })
+  }
 
   const {
     timeSegmentList = [],
@@ -95,7 +128,9 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
                 <Box sx={{ width: '100px', height: '2px', background: 'silver', mr: '16px' }} />
               }
               sx={{
+                padding: '0 20px',
                 paddingBottom: '60px',
+                paddingTop: '30px',
                 alignItems: 'center',
                 overflowX: 'scroll',
                 position: 'sticky',
@@ -103,6 +138,7 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
                 background: 'white',
                 zIndex: '9999',
                 boxShadow: '0 0 17px #0000007d',
+                scrollbarWidth: 'none',
 
                 '& .MuiStep-horizontal': {
                   display: 'flex',
@@ -119,9 +155,15 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
                       alignItems="center"
                       sx={{
                         margin: 'auto 0',
-                        // boxShadow: '2px 4px 6px rgba(0, 0, 0, 0.1)',
                         borderRadius: '50%',
-                        border: index === activeStepIndex ? '1px solid silver' : 'none'
+                        cursor: index === activeStepIndex ? 'auto' : 'pointer',
+                        boxShadow:
+                          index === activeStepIndex
+                            ? 'inset 0 0 15px 1px #a2a2ffa6'
+                            : 'inset 0 0 0 1px silver',
+                        '& > div:hover > div:first-child': {
+                          transform: index === activeStepIndex ? `scale(1)` : `scale(1.2)`
+                        }
                       }}
                       onClick={handleStep(index)}
                     >
@@ -129,6 +171,8 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
                         timerData={timerData}
                         setDayData={setDayData}
                         index={index}
+                        timeSegmentList={timeSegmentList}
+                        addTimeForTimeSegment={addTimeForTimeSegment}
                         {...props}
                       />
                     </Box>
@@ -231,8 +275,32 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
               <br />
 
               <List>
+                <Box>
+                  <ListItemButton onClick={toggleAdditionalTimeCountsOpen}>
+                    <ListItemText primary="Доп временные расчеты" />
+                    {isAdditionalTimeCountsOpen ? <ExpandLess /> : <ExpandMore />}
+                  </ListItemButton>
+                  <Collapse in={isAdditionalTimeCountsOpen} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                      <ListItemButton>
+                        Рабочее время: {formatSecondsToRemainingTime(planningSeconds)}
+                      </ListItemButton>
+                      <ListItemButton>
+                        Доп время для работы: {formatSecondsToRemainingTime(planningSeconds)}
+                      </ListItemButton>
+                      <ListItemButton>
+                        Не рабочее время: {formatSecondsToRemainingTime(planningSeconds)}
+                      </ListItemButton>
+                      <ListItemButton>
+                        Доп не рабочее время: {formatSecondsToRemainingTime(planningSeconds)}
+                      </ListItemButton>
+                    </List>
+                  </Collapse>
+                </Box>
+                <Divider />
                 <ListItem>Планирование: {formatSecondsToRemainingTime(planningSeconds)}</ListItem>
                 <ListItem>Не продуктивно: {formatSecondsToRemainingTime(skippedSeconds)}</ListItem>
+                <ListItem>Отвлекли: {formatSecondsToRemainingTime(skippedSeconds)}</ListItem>
               </List>
 
               <Stack flexDirection={'row'} columnGap={'15px'}>

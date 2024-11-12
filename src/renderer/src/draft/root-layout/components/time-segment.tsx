@@ -3,26 +3,40 @@ import { Updater } from 'use-immer'
 import {
   CurrentTimerResult,
   StepperData,
-  TimeSegment as TimeSegmentProps
+  TimeSegmentProps
 } from '@renderer/draft/root-layout/types'
 import { getPercentage } from '@renderer/draft/root-layout/helpers/get-percentage'
 import { Box, CircularProgress, Stack, Typography } from '@mui/material'
-import { PlayArrow, Pause } from '@mui/icons-material'
+import { PlayArrow, Pause, Add } from '@mui/icons-material'
 import { formatSecondsToRemainingTime } from '@renderer/draft/root-layout/helpers/format-seconds-to-remaining-time'
 
 import { ReactComponent as Tomato } from '@assets/img/icons/tomato/tom.svg'
 import { ReactComponent as Cucumber } from '@assets/img/icons/cucumbers/cuc.svg'
+import { getTimeStringFromTimerData } from '@renderer/draft/root-layout/helpers/get-time-string-from-timer-data'
 
 export const TimeSegment: FC<
   TimeSegmentProps & {
     timerData: CurrentTimerResult
     setDayData: Updater<StepperData>
     index: number
+    addTimeForTimeSegment: (timeSegmentIndex: number) => void
+    timeSegmentList: TimeSegmentProps[]
   }
-> = ({ status, type, timeToFinish, timerData, index, setDayData }) => {
-  const isReadyForInitStatus = status === 'waiting-start'
+> = ({
+  status,
+  type,
+  timeToFinish,
+  timerData,
+  index,
+  setDayData,
+  additionalTime,
+  addTimeForTimeSegment,
+  timeSegmentList
+}) => {
   const isInProcess = status === 'process'
   const isPaused = status === 'paused'
+  const nextSiblingStatus = timeSegmentList[index + 1]?.status || ''
+  const isLastStep = nextSiblingStatus === ''
 
   const startTimeItemHandler = () => {
     setDayData((draft) => {
@@ -45,7 +59,20 @@ export const TimeSegment: FC<
     })
   }
 
+  const addTimeForTimeSegmentHandler = () => {
+    addTimeForTimeSegment(index)
+  }
+
   const value = isInProcess ? getPercentage(timeToFinish - timerData.totalSeconds, timeToFinish) : 0
+  const time = isInProcess
+    ? getTimeStringFromTimerData(timerData)
+    : formatSecondsToRemainingTime(isPaused ? timerData.totalSeconds : timeToFinish)
+
+  const additionalNavByStatus = {
+    'waiting-start': () => <PlayArrow sx={{ width: '15px' }} onClick={startTimeItemHandler} />,
+    paused: () => <PlayArrow sx={{ width: '15px' }} onClick={startTimeItemHandler} />,
+    process: () => <Pause onClick={pausedHandler} />
+  }
 
   return (
     <Box
@@ -61,12 +88,13 @@ export const TimeSegment: FC<
       <Box
         sx={{
           position: 'relative',
+          display: 'flex',
           '& svg': {
             width: '25px',
             height: '50px',
             position: 'absolute',
             left: '50%',
-            top: '43%',
+            top: '47%',
             transform: `translate(-50%, -50%)`
           },
           '& svg#tomato path': {
@@ -107,32 +135,13 @@ export const TimeSegment: FC<
         }}
         justifyContent="center"
       >
-        {isReadyForInitStatus ? (
-          <Stack flexDirection="row" columnGap="5px" justifyContent="center" alignItems={'center'}>
-            <PlayArrow sx={{ width: '15px' }} onClick={startTimeItemHandler} />
-            <Typography variant="subtitle2">
-              {formatSecondsToRemainingTime(timeToFinish)}
-            </Typography>
-          </Stack>
-        ) : (
-          <Stack flexDirection="row" columnGap="5px" justifyContent="center" alignItems="center">
-            {isInProcess ? (
-              <>
-                <Pause onClick={pausedHandler} />{' '}
-                <Typography variant="subtitle2">
-                  {timerData.minutes}:{timerData.seconds}
-                </Typography>
-              </>
-            ) : (
-              <>
-                {isPaused && <PlayArrow sx={{ width: '15px' }} onClick={startTimeItemHandler} />}
-                <Typography variant="subtitle2">
-                  {formatSecondsToRemainingTime(isPaused ? timerData.totalSeconds : timeToFinish)}
-                </Typography>
-              </>
-            )}
-          </Stack>
-        )}
+        <Stack flexDirection="row" columnGap="5px" justifyContent="center" alignItems="center">
+          {additionalNavByStatus[status] && additionalNavByStatus[status]()}
+          <Typography variant="subtitle2">{time}</Typography>
+          {(isLastStep ||
+            nextSiblingStatus === 'waiting-start' ||
+            nextSiblingStatus === 'not-started') && <Add onClick={addTimeForTimeSegmentHandler} />}
+        </Stack>
       </Stack>
     </Box>
   )
