@@ -1,23 +1,6 @@
-import {
-  Box,
-  CircularProgress,
-  Typography,
-  Fab,
-  List,
-  ListItem,
-  Checkbox,
-  TextField,
-  Button,
-  Divider,
-  Stack,
-  ListItemButton,
-  ListItemText,
-  Collapse
-} from '@mui/material'
-import { Add, Remove, Delete, ExpandLess, ExpandMore } from '@mui/icons-material'
-import { TextareaAutosize } from './../components/TextareaAutosize'
+import { Box, Button, Fab, Tab, Tabs } from '@mui/material'
 
-import { FC } from 'react'
+import { FC, useState } from 'react'
 import { isEmpty, last, first } from 'lodash'
 
 import { Stepper } from './ui/stepper'
@@ -27,20 +10,18 @@ import { useStepperTimer } from '@renderer/draft/root-layout/hooks/use-stepper-t
 import { useConditionsInterval } from '@front-shared/hooks/use-conditions-interval'
 import { TimeSegment } from '@renderer/draft/root-layout/components/time-segment'
 import { DateContent } from '@renderer/draft/root-layout/types'
-import { formatSecondsToRemainingTime } from '@renderer/draft/root-layout/helpers/format-seconds-to-remaining-time'
 import { useTaskManager } from '@renderer/draft/root-layout/hooks/use-task-manager'
 import { useStepper } from '@renderer/draft/root-layout/hooks/use-stepper'
-import { MarkdownEditor } from '@renderer/draft/root-layout/components/mark-down-editor'
 import {
   defaultAdditionalCucumberTime,
   defaultAdditionalPomodoroTime
 } from '@renderer/draft/root-layout/const'
 
-import { useToggle } from '@common-hook'
 import { PomadoroLayout } from './ui/pomadoro-layout'
 import { FooterNav } from './ui/footer-nav'
 import { TaskList } from './ui/task-list'
 import { TimeList } from '@renderer/draft/root-layout/components/pomodoro-content/ui/time-list'
+import { Remove, Add } from '@mui/icons-material'
 
 export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: string }> = ({
   contentData,
@@ -58,8 +39,10 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
     moveTaskToBackLog,
     deleteTask,
     togglePlaning,
+    toggleNotPlaning,
     incrementPlanningSecond,
-    incrementSkippedSecond
+    incrementSkippedSecond,
+    incrementNotPlanningSecond
   } = useTaskManager(contentData, selectedFilePath)
 
   const { activeStepIndex, handleStep } = useStepper(dayData)
@@ -96,12 +79,15 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
     timeSegmentList = [],
     backLog = [],
     isPlanning,
+    isNotPlanning,
     planningSeconds,
-    skippedSeconds
+    skippedSeconds,
+    notPlanningSeconds
   } = dayData || {}
   const taskList = timeSegmentList[activeStepIndex]?.taskList || []
   const isSkippingTime =
     isPlanning === false &&
+    isNotPlanning === false &&
     last(timeSegmentList).status !== 'finished' &&
     first(timeSegmentList).status !== 'waiting-start' &&
     timeSegmentList.findIndex(({ status }) => status === 'process') == -1
@@ -118,6 +104,15 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
     }
   })
 
+  useConditionsInterval([isNotPlanning], () => {
+    if (isNotPlanning) {
+      incrementNotPlanningSecond()
+    }
+  })
+
+  const [backLogType, setBackLogType] = useState('tomato')
+  const activeTimeSegmentType = timeSegmentList[activeStepIndex].type
+
   return (
     <PomadoroLayout
       isLoading={isEmpty(dayData)}
@@ -128,7 +123,9 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
               key={index}
               activeStepIndex={activeStepIndex}
               index={index}
-              onClick={() => handleStep(index)}
+              onClick={() => {
+                handleStep(index)
+              }}
             >
               <TimeSegment
                 timerData={timerData}
@@ -147,24 +144,79 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
           <TaskList
             taskList={taskList}
             onTaskToggle={toggleTaskFinished}
-            onTaskTextChange={updateTaskDescription}
+            onTaskTextChange={updateTaskValue}
             onTaskDescriptionChange={updateTaskDescription}
-            onReturn={moveTaskToBackLog}
             onDelete={deleteTask}
+            activeStepIndex={activeStepIndex}
+            navigation={(id) => (
+              <Fab size="small" color="error" aria-label="add">
+                <Remove onClick={() => moveTaskToBackLog(id, activeStepIndex)} />
+              </Fab>
+            )}
+            placeholder={'Добавьте задачу или возьмите из беклога'}
           />
+
+          <Button
+            variant={'contained'}
+            onClick={() =>
+              createNewTask({ segmentIndex: activeStepIndex, type: activeTimeSegmentType })
+            }
+          >
+            Добавить задачу
+          </Button>
+
+          <br />
+          <br />
+          <br />
+
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs
+              value={backLogType}
+              onChange={(_, value) => setBackLogType(value)}
+              aria-label="basic tabs example"
+            >
+              <Tab label="Tomato" value="tomato" />
+              <Tab label="Cucumber" value="cucumber" />
+            </Tabs>
+          </Box>
+
+          <TaskList
+            taskList={backLog.filter(({ type }) => type === backLogType)}
+            onTaskToggle={toggleTaskFinished}
+            onTaskTextChange={updateTaskValue}
+            onTaskDescriptionChange={updateTaskDescription}
+            onDelete={deleteTask}
+            navigation={(id) => (
+              <Fab
+                size="small"
+                color="error"
+                aria-label="add"
+                disabled={activeTimeSegmentType !== backLogType}
+              >
+                <Add onClick={() => moveTaskToTimeSegment(id, activeStepIndex)} />
+              </Fab>
+            )}
+            placeholder={'Бек лог задачи'}
+          />
+
+          <Button variant={'contained'} onClick={() => createNewTask({ type: backLogType })}>
+            Добавить в бек лог
+          </Button>
+
+          <br />
+          <br />
+          <br />
 
           <TimeList
             timeSegmentList={timeSegmentList}
             planningSeconds={planningSeconds}
             skippedSeconds={skippedSeconds}
-            notPlanningSeconds={skippedSeconds}
+            notPlanningSeconds={notPlanningSeconds}
           />
 
-          {/*Беклог*/}
-
           <FooterNav>
-            <Button variant={'contained'} onClick={() => togglePlaning()}>
-              {isPlanning ? 'Запустить процесс не по плану' : 'Остановить процесс не по плану'}
+            <Button variant={'contained'} onClick={() => toggleNotPlaning()}>
+              {isNotPlanning ? 'Остановить процесс не по плану' : 'Запустить процесс не по плану'}
             </Button>
             <Button variant={'contained'} onClick={() => togglePlaning()}>
               {isPlanning ? 'Остановить планнинг' : 'Запустить планинг'}

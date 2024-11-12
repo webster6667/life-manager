@@ -25,16 +25,18 @@ export const useTaskManager = (contentData: DateContent, selectedFilePath: strin
 
   // Хендлер для добавления новой задачи в backlog или taskList в timeSegment
   const createNewTask = ({
-    value,
+    value = '',
+    type,
     segmentIndex
   }: {
-    value: string
-    parentId?: number
+    value?: string
+    type: 'tomato' | 'cucumber'
     segmentIndex?: number
   }): Task => {
     const newTask: Task = {
       id: Date.now(),
       isFinished: false,
+      type,
       value, // Заменили 'description' на 'value'
       description: '', // Добавляем поле description
       parentId: 0,
@@ -193,9 +195,33 @@ export const useTaskManager = (contentData: DateContent, selectedFilePath: strin
     })
   }
 
+  const toggleNotPlaning = () => {
+    setDayData((draft) => {
+      const isNotPlaningStart = !draft.isNotPlanning
+
+      if (isNotPlaningStart) {
+        draft.isPlanning = false
+      }
+
+      draft.isNotPlanning = isNotPlaningStart
+    })
+  }
+
   const togglePlaning = () => {
     setDayData((draft) => {
-      draft.isPlanning = !draft.isPlanning
+      const isPlaningStart = !draft.isPlanning
+
+      if (isPlaningStart) {
+        draft.isNotPlanning = false
+      }
+
+      draft.isPlanning = isPlaningStart
+    })
+  }
+
+  const incrementNotPlanningSecond = () => {
+    setDayData((draft) => {
+      draft.notPlanningSeconds = draft.notPlanningSeconds + 1
     })
   }
 
@@ -224,6 +250,8 @@ export const useTaskManager = (contentData: DateContent, selectedFilePath: strin
     togglePlaning,
     incrementPlanningSecond,
     incrementSkippedSecond,
-    setDayData
+    setDayData,
+    toggleNotPlaning,
+    incrementNotPlanningSecond
   }
 }

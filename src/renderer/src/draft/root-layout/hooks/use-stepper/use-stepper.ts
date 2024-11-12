@@ -14,7 +14,7 @@ export const useStepper = (dayData: StepperData) => {
     return activeStepIndexToWrite == -1 ? 0 : activeStepIndexToWrite
   })
 
-  const handleStep = (step: number) => () => {
+  const handleStep = (step: number) => {
     setActiveStepIndex(step)
   }
 

@@ -1,8 +1,8 @@
 import { Box, Checkbox, Fab, List, ListItem, Stack, TextField, Typography } from '@mui/material'
 import { Task } from '@renderer/draft/root-layout/types'
-import { FC } from 'react'
+import { FC, ReactNode } from 'react'
 import { MarkdownEditor } from '@renderer/draft/root-layout/components/mark-down-editor'
-import { Delete, Remove } from '@mui/icons-material'
+import { Delete } from '@mui/icons-material'
 import { useTaskManager } from '@renderer/draft/root-layout/hooks/use-task-manager'
 
 type useTaskManagerMethods = ReturnType<typeof useTaskManager>
@@ -13,7 +13,7 @@ export const TaskList: FC<{
   onTaskToggle: useTaskManagerMethods['toggleTaskFinished']
   onTaskTextChange: useTaskManagerMethods['updateTaskValue']
   onTaskDescriptionChange: useTaskManagerMethods['updateTaskDescription']
-  onReturn: useTaskManagerMethods['moveTaskToBackLog']
+  navigation: (id: number) => ReactNode
   onDelete: useTaskManagerMethods['deleteTask']
   activeStepIndex?: number
 }> = ({
@@ -23,7 +23,7 @@ export const TaskList: FC<{
   onTaskToggle,
   onTaskTextChange,
   onTaskDescriptionChange,
-  onReturn,
+  navigation,
   onDelete
 }) => {
   return (
@@ -46,17 +46,17 @@ export const TaskList: FC<{
                     variant="standard"
                     value={value}
                     placeholder={`Задача номер ${index + 1}`}
-                    onChange={(e) => onTaskTextChange(id, e.target.value, activeStepIndex)}
+                    onChange={(e) => {
+                      onTaskTextChange(id, e.target.value, activeStepIndex)
+                    }}
                     fullWidth
                   />
                   <MarkdownEditor
                     value={description}
-                    onChange={(value) => onTaskDescriptionChange(id, value, activeStepIndex)}
+                    onChange={(newValue) => onTaskDescriptionChange(id, newValue, activeStepIndex)}
                   />
                 </Stack>
-                <Fab size="small" color="error" aria-label="add">
-                  <Remove onClick={() => onReturn(id, activeStepIndex)} />
-                </Fab>
+                {navigation(id)}
                 <Fab size="small" color="error" aria-label="add">
                   <Delete onClick={() => onDelete(id, activeStepIndex)} />
                 </Fab>

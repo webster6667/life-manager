@@ -17,6 +17,7 @@ export type Task = {
   description: string
   parentId: number
   commentsList: TaskComment[]
+  type: 'tomato' | 'cucumber'
 }
 
 export type TimeSegmentProps = {
@@ -32,7 +33,9 @@ export type StepperData = {
   backLog: Task[]
   skippedSeconds: number
   planningSeconds: number
+  notPlanningSeconds: number
   isPlanning: boolean
+  isNotPlanning: boolean
 }
 
 export type DateContent = StepperData | object
