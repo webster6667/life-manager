@@ -64,7 +64,9 @@ export const TaskList: FC<{
             ))}
           </List>
         ) : (
-          <Typography variant="h5">{placeholder || 'Пусто'}</Typography>
+          <Typography sx={{ p: '20px 0' }} variant="h5">
+            {placeholder || 'Пусто'}
+          </Typography>
         )}
       </Box>
     </Box>

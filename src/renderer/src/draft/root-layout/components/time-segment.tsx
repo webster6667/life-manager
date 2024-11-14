@@ -34,6 +34,7 @@ export const TimeSegment: FC<
   timeSegmentList
 }) => {
   const isInProcess = status === 'process'
+  const isFinished = status === 'finished'
   const isPaused = status === 'paused'
   const nextSiblingStatus = timeSegmentList[index + 1]?.status || ''
   const isLastStep = nextSiblingStatus === ''
@@ -89,7 +90,7 @@ export const TimeSegment: FC<
         sx={{
           position: 'relative',
           display: 'flex',
-          '& svg': {
+          '& .MuiCircularProgress-root + svg': {
             width: '25px',
             height: '50px',
             position: 'absolute',
@@ -112,14 +113,14 @@ export const TimeSegment: FC<
           size={50} // Size of the progress ring
           thickness={5} // Thickness of the progress ring
           variant="determinate" // Use determinate to show progress
-          value={value} // Set progress value
+          value={isFinished ? 100 : value} // Set progress value
           sx={{
             // position: 'absolute',
             color: 'blue', // No fill color
             boxShadow: 'inset 0 0 0 5px silver',
             borderRadius: '50%',
             circle: {
-              stroke: 'white' // Color of the ring itself
+              stroke: '#3bc181' // Color of the ring itself
             }
           }}
         />

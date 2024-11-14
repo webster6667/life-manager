@@ -22,6 +22,7 @@ import { FooterNav } from './ui/footer-nav'
 import { TaskList } from './ui/task-list'
 import { TimeList } from '@renderer/draft/root-layout/components/pomodoro-content/ui/time-list'
 import { Remove, Add } from '@mui/icons-material'
+import { DropDown } from '@renderer/draft/root-layout/components/pomodoro-content/ui/drop-down'
 
 export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: string }> = ({
   contentData,
@@ -118,7 +119,7 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
       isLoading={isEmpty(dayData)}
       stepper={() => (
         <Stepper activeStepIndex={activeStepIndex}>
-          {timeSegmentList.map(({ ...props }, index) => (
+          {timeSegmentList.map((props, index) => (
             <Step
               key={index}
               activeStepIndex={activeStepIndex}
@@ -169,43 +170,41 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
           <br />
           <br />
 
-          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs
-              value={backLogType}
-              onChange={(_, value) => setBackLogType(value)}
-              aria-label="basic tabs example"
-            >
-              <Tab label="Tomato" value="tomato" />
-              <Tab label="Cucumber" value="cucumber" />
-            </Tabs>
-          </Box>
-
-          <TaskList
-            taskList={backLog.filter(({ type }) => type === backLogType)}
-            onTaskToggle={toggleTaskFinished}
-            onTaskTextChange={updateTaskValue}
-            onTaskDescriptionChange={updateTaskDescription}
-            onDelete={deleteTask}
-            navigation={(id) => (
-              <Fab
-                size="small"
-                color="error"
-                aria-label="add"
-                disabled={activeTimeSegmentType !== backLogType}
+          <DropDown label="Беклог">
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+              <Tabs
+                value={backLogType}
+                onChange={(_, value) => setBackLogType(value)}
+                aria-label="basic tabs example"
               >
-                <Add onClick={() => moveTaskToTimeSegment(id, activeStepIndex)} />
-              </Fab>
-            )}
-            placeholder={'Бек лог задачи'}
-          />
+                <Tab label="Tomato" value="tomato" />
+                <Tab label="Cucumber" value="cucumber" />
+              </Tabs>
+            </Box>
 
-          <Button variant={'contained'} onClick={() => createNewTask({ type: backLogType })}>
-            Добавить в бек лог
-          </Button>
+            <TaskList
+              taskList={backLog.filter(({ type }) => type === backLogType)}
+              onTaskToggle={toggleTaskFinished}
+              onTaskTextChange={updateTaskValue}
+              onTaskDescriptionChange={updateTaskDescription}
+              onDelete={deleteTask}
+              navigation={(id) => (
+                <Fab
+                  size="small"
+                  color="error"
+                  aria-label="add"
+                  disabled={activeTimeSegmentType !== backLogType}
+                >
+                  <Add onClick={() => moveTaskToTimeSegment(id, activeStepIndex)} />
+                </Fab>
+              )}
+              placeholder={'Бек лог задачи'}
+            />
 
-          <br />
-          <br />
-          <br />
+            <Button variant={'contained'} onClick={() => createNewTask({ type: backLogType })}>
+              Добавить в бек лог
+            </Button>
+          </DropDown>
 
           <TimeList
             timeSegmentList={timeSegmentList}
