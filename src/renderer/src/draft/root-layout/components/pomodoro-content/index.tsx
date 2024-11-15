@@ -1,7 +1,7 @@
 import { Box, Button, Fab, Tab, Tabs } from '@mui/material'
 
 import { FC, useState } from 'react'
-import { isEmpty, last, first } from 'lodash'
+import { isEmpty } from 'lodash'
 
 import { Stepper } from './ui/stepper'
 import { Step } from './ui/step'
@@ -12,10 +12,6 @@ import { TimeSegment } from '@renderer/draft/root-layout/components/time-segment
 import { DateContent } from '@renderer/draft/root-layout/types'
 import { useTaskManager } from '@renderer/draft/root-layout/hooks/use-task-manager'
 import { useStepper } from '@renderer/draft/root-layout/hooks/use-stepper'
-import {
-  defaultAdditionalCucumberTime,
-  defaultAdditionalPomodoroTime
-} from '@renderer/draft/root-layout/const'
 
 import { PomadoroLayout } from './ui/pomadoro-layout'
 import { FooterNav } from './ui/footer-nav'
@@ -23,11 +19,15 @@ import { TaskList } from './ui/task-list'
 import { TimeList } from '@renderer/draft/root-layout/components/pomodoro-content/ui/time-list'
 import { Remove, Add } from '@mui/icons-material'
 import { DropDown } from '@renderer/draft/root-layout/components/pomodoro-content/ui/drop-down'
+import { format } from 'date-fns'
 
-export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: string }> = ({
-  contentData,
-  selectedFilePath
-}) => {
+export const PomodoroContent: FC<{
+  contentData: DateContent
+  selectedFilePath: string
+  selectedDate: string
+}> = ({ contentData, selectedFilePath, selectedDate }) => {
+  const isStepperForToday = format(new Date(), 'yyyy-MM-dd') === selectedDate
+
   const {
     dayData,
     setDayData,
@@ -43,38 +43,9 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
     toggleNotPlaning,
     incrementPlanningSecond,
     incrementSkippedSecond,
-    incrementNotPlanningSecond
+    incrementNotPlanningSecond,
+    toggleTimeObserving
   } = useTaskManager(contentData, selectedFilePath)
-
-  const { activeStepIndex, handleStep } = useStepper(dayData)
-  const isPaused = dayData.timeSegmentList[activeStepIndex].status === 'paused'
-  const timerData = useStepperTimer({
-    onFinish: finishTimeSegment,
-    isPaused
-  })
-
-  const addTimeForTimeSegment = (timeSegmentIndex: number) => {
-    setDayData(({ timeSegmentList }) => {
-      const remainingSeconds = timerData.totalSeconds
-      if (timeSegmentIndex >= 0) {
-        const { type, status, timeToFinish } = timeSegmentList[timeSegmentIndex]
-        const additionalTime =
-          type === 'tomato' ? defaultAdditionalPomodoroTime : defaultAdditionalCucumberTime
-        timeSegmentList[timeSegmentIndex].timeToFinish = timeToFinish + additionalTime
-        timeSegmentList[timeSegmentIndex].additionalTime += additionalTime
-
-        if (status === 'process') {
-          timerData.startWithSettings(remainingSeconds + additionalTime)
-        } else if (status === 'finished' || status === 'paused') {
-          if (timeSegmentIndex < timeSegmentList.length - 1) {
-            timeSegmentList[timeSegmentIndex + 1].status = 'not-started'
-            timeSegmentList[timeSegmentIndex].status = 'paused'
-            timerData.startWithSettings(remainingSeconds + additionalTime, false)
-          }
-        }
-      }
-    })
-  }
 
   const {
     timeSegmentList = [],
@@ -83,30 +54,49 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
     isNotPlanning,
     planningSeconds,
     skippedSeconds,
-    notPlanningSeconds
+    notPlanningSeconds,
+    isTimeObserving = true
   } = dayData || {}
-  const taskList = timeSegmentList[activeStepIndex]?.taskList || []
-  const isSkippingTime =
+
+  const {
+    activeStepIndex,
+    selectedStepIndex,
+    selectStepHandler,
+    hasStepInProgress,
+    isActiveStepPaused,
+    isStepperNotFinished
+  } = useStepper(timeSegmentList)
+
+  const timerData = useStepperTimer({
+    onFinish: finishTimeSegment,
+    isActiveStepPaused,
+    isStepperForToday
+  })
+
+  const taskList = timeSegmentList[selectedStepIndex]?.taskList || []
+
+  const shouldWriteSkippingTime =
     isPlanning === false &&
     isNotPlanning === false &&
-    last(timeSegmentList).status !== 'finished' &&
-    first(timeSegmentList).status !== 'waiting-start' &&
-    timeSegmentList.findIndex(({ status }) => status === 'process') == -1
+    hasStepInProgress === false &&
+    isTimeObserving
+  const shouldWritePlanningTime = isPlanning && isStepperForToday
+  const shouldWriteNotPlanning = isNotPlanning && isStepperForToday
 
-  useConditionsInterval([isPlanning], () => {
-    if (isPlanning) {
+  useConditionsInterval([shouldWritePlanningTime], () => {
+    if (shouldWritePlanningTime) {
       incrementPlanningSecond()
     }
   })
 
-  useConditionsInterval([isSkippingTime], () => {
-    if (isSkippingTime) {
+  useConditionsInterval([shouldWriteSkippingTime], () => {
+    if (shouldWriteSkippingTime) {
       incrementSkippedSecond()
     }
   })
 
-  useConditionsInterval([isNotPlanning], () => {
-    if (isNotPlanning) {
+  useConditionsInterval([shouldWriteNotPlanning], () => {
+    if (shouldWriteNotPlanning) {
       incrementNotPlanningSecond()
     }
   })
@@ -118,14 +108,14 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
     <PomadoroLayout
       isLoading={isEmpty(dayData)}
       stepper={() => (
-        <Stepper activeStepIndex={activeStepIndex}>
+        <Stepper selectedStepIndex={selectedStepIndex}>
           {timeSegmentList.map((props, index) => (
             <Step
               key={index}
-              activeStepIndex={activeStepIndex}
+              selectedStepIndex={selectedStepIndex}
               index={index}
               onClick={() => {
-                handleStep(index)
+                selectStepHandler(index)
               }}
             >
               <TimeSegment
@@ -133,7 +123,7 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
                 setDayData={setDayData}
                 index={index}
                 timeSegmentList={timeSegmentList}
-                addTimeForTimeSegment={addTimeForTimeSegment}
+                isStepperForToday={isStepperForToday}
                 {...props}
               />
             </Step>
@@ -148,10 +138,10 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
             onTaskTextChange={updateTaskValue}
             onTaskDescriptionChange={updateTaskDescription}
             onDelete={deleteTask}
-            activeStepIndex={activeStepIndex}
+            selectedStepIndex={selectedStepIndex}
             navigation={(id) => (
               <Fab size="small" color="error" aria-label="add">
-                <Remove onClick={() => moveTaskToBackLog(id, activeStepIndex)} />
+                <Remove onClick={() => moveTaskToBackLog(id, selectedStepIndex)} />
               </Fab>
             )}
             placeholder={'Добавьте задачу или возьмите из беклога'}
@@ -160,7 +150,7 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
           <Button
             variant={'contained'}
             onClick={() =>
-              createNewTask({ segmentIndex: activeStepIndex, type: activeTimeSegmentType })
+              createNewTask({ segmentIndex: selectedStepIndex, type: activeTimeSegmentType })
             }
           >
             Добавить задачу
@@ -195,7 +185,7 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
                   aria-label="add"
                   disabled={activeTimeSegmentType !== backLogType}
                 >
-                  <Add onClick={() => moveTaskToTimeSegment(id, activeStepIndex)} />
+                  <Add onClick={() => moveTaskToTimeSegment(id, selectedStepIndex)} />
                 </Fab>
               )}
               placeholder={'Бек лог задачи'}
@@ -213,14 +203,33 @@ export const PomodoroContent: FC<{ contentData: DateContent; selectedFilePath: s
             notPlanningSeconds={notPlanningSeconds}
           />
 
-          <FooterNav>
-            <Button variant={'contained'} onClick={() => toggleNotPlaning()}>
-              {isNotPlanning ? 'Остановить процесс не по плану' : 'Запустить процесс не по плану'}
-            </Button>
-            <Button variant={'contained'} onClick={() => togglePlaning()}>
-              {isPlanning ? 'Остановить планнинг' : 'Запустить планинг'}
-            </Button>
-          </FooterNav>
+          {isStepperForToday && (
+            <FooterNav>
+              <Button
+                variant={'contained'}
+                onClick={() => toggleNotPlaning()}
+                disabled={!isTimeObserving}
+              >
+                {isNotPlanning ? 'Остановить процесс не по плану' : 'Запустить процесс не по плану'}
+              </Button>
+              <Button
+                variant={'contained'}
+                onClick={() => togglePlaning()}
+                disabled={!isTimeObserving}
+              >
+                {isPlanning ? 'Остановить планнинг' : 'Запустить планинг'}
+              </Button>
+              {isStepperNotFinished && isStepperNotFinished && (
+                <Button
+                  variant={'contained'}
+                  color={isTimeObserving ? 'error' : 'success'}
+                  onClick={() => toggleTimeObserving()}
+                >
+                  {isTimeObserving ? 'Прекратить счет времени' : 'Запустить счет времени'}
+                </Button>
+              )}
+            </FooterNav>
+          )}
         </>
       )}
     />

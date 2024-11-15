@@ -4,7 +4,7 @@ import { useTimer } from 'react-timer-hook'
 import { UseStepperTimerProps } from '@renderer/draft/root-layout/hooks/use-stepper-timer/types'
 
 export const useStepperTimer = (props: UseStepperTimerProps) => {
-  const { onFinish, isPaused } = props || {}
+  const { onFinish, isActiveStepPaused, isStepperForToday } = props || {}
   const remainingSeconds = +window.localStorage.getItem('remainingSeconds')
   const expiryTimestamp = new Date()
   expiryTimestamp.setSeconds(expiryTimestamp.getSeconds() + remainingSeconds)
@@ -16,7 +16,7 @@ export const useStepperTimer = (props: UseStepperTimerProps) => {
         onFinish && onFinish()
         window.localStorage.removeItem('remainingSeconds')
       },
-      autoStart: isPaused ? false : remainingSeconds >= 0
+      autoStart: isActiveStepPaused || isStepperForToday ? false : remainingSeconds >= 0
     })
 
   useEffect(() => {

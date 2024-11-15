@@ -2,11 +2,12 @@ import { Box, Step as OriginStep } from '@mui/material'
 import { FC, ReactNode } from 'react'
 
 export const Step: FC<{
-  activeStepIndex: number
+  selectedStepIndex: number
   index: number
   onClick: () => void
   children: ReactNode
-}> = ({ activeStepIndex, index, onClick, children, ...props }) => {
+}> = ({ selectedStepIndex, index, onClick, children, ...props }) => {
+  const isSelectedStep = index === selectedStepIndex
   return (
     <OriginStep sx={{ flexDirection: 'column' }} {...props}>
       <Box
@@ -15,11 +16,10 @@ export const Step: FC<{
         sx={{
           margin: 'auto 0',
           borderRadius: '50%',
-          cursor: index === activeStepIndex ? 'auto' : 'pointer',
-          boxShadow:
-            index === activeStepIndex ? 'inset 0 0 15px 1px #a2a2ffa6' : 'inset 0 0 0 1px silver',
+          cursor: isSelectedStep ? 'auto' : 'pointer',
+          boxShadow: isSelectedStep ? 'inset 0 0 15px 1px #a2a2ffa6' : 'inset 0 0 0 1px silver',
           '& > div:hover > div:first-child': {
-            transform: index === activeStepIndex ? `scale(1)` : `scale(1.2)`
+            transform: isSelectedStep ? `scale(1)` : `scale(1.2)`
           }
         }}
         onClick={() => onClick()}

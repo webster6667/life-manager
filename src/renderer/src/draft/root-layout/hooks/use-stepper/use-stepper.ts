@@ -1,22 +1,36 @@
 import { useState } from 'react'
 
-import { StepperData } from '@renderer/draft/root-layout/types'
+import { TimeSegmentProps } from '@renderer/draft/root-layout/types'
+import { getActiveStepIndex } from '@renderer/draft/root-layout/hooks/use-stepper/helpers/get-active-step-index'
 
-export const useStepper = (dayData: StepperData) => {
-  const [activeStepIndex, setActiveStepIndex] = useState(() => {
-    const activeStepIndexToWrite = dayData.timeSegmentList.findIndex(({ status }, index) => {
-      const isStepInProgressOrInQueue = ['waiting-start', 'process', 'paused'].includes(status)
-      const isAllStepsFinished =
-        dayData.timeSegmentList.length - 1 === index && status === 'finished'
-      return isStepInProgressOrInQueue || isAllStepsFinished
-    })
+export const useStepper = (timeSegmentList: TimeSegmentProps[]) => {
+  const lastStepIndex = timeSegmentList.length - 1
+  const isStepperFinished = timeSegmentList[lastStepIndex].status === 'finished'
+  const isStepperOnFirstStep = timeSegmentList[0].status !== 'finished'
+  const hasStepInProgress = timeSegmentList.findIndex(({ status }) => status === 'process') >= 0
+  const isStepperNotInitiated = ['waiting-start', 'not-started'].includes(timeSegmentList[0].status)
 
-    return activeStepIndexToWrite == -1 ? 0 : activeStepIndexToWrite
-  })
+  const activeStepIndex = isStepperFinished
+    ? lastStepIndex
+    : isStepperOnFirstStep
+      ? 0
+      : getActiveStepIndex(timeSegmentList)
+  const [selectedStepIndex, setSelectedStepIndex] = useState(activeStepIndex)
 
-  const handleStep = (step: number) => {
-    setActiveStepIndex(step)
+  const selectStepHandler = (stepIndex: number) => {
+    setSelectedStepIndex(stepIndex)
   }
+  const isActiveStepPaused = timeSegmentList[activeStepIndex].status === 'paused'
 
-  return { activeStepIndex, setActiveStepIndex, handleStep }
+  return {
+    selectedStepIndex,
+    activeStepIndex,
+    isActiveStepPaused,
+    selectStepHandler,
+    isStepperFinished,
+    isStepperNotFinished: !isStepperFinished,
+    hasStepInProgress,
+    isStepperNotInitiated,
+    isStepperWasInitiated: !isStepperNotInitiated
+  }
 }

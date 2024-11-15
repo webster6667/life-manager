@@ -197,25 +197,66 @@ export const useTaskManager = (contentData: DateContent, selectedFilePath: strin
 
   const toggleNotPlaning = () => {
     setDayData((draft) => {
-      const isNotPlaningStart = !draft.isNotPlanning
+      const newNotPlaningState = !draft.isNotPlanning
 
-      if (isNotPlaningStart) {
+      if (newNotPlaningState === true) {
         draft.isPlanning = false
+
+        const processingStepIndex = draft.timeSegmentList.findIndex(
+          ({ status }) => status === 'process'
+        )
+
+        if (processingStepIndex >= 0) {
+          const isCucumberInProcess = draft.timeSegmentList[processingStepIndex].type === 'cucumber'
+
+          if (isCucumberInProcess) {
+            draft.timeSegmentList[processingStepIndex].status = 'paused'
+          }
+        }
       }
 
-      draft.isNotPlanning = isNotPlaningStart
+      draft.isNotPlanning = newNotPlaningState
     })
   }
 
   const togglePlaning = () => {
     setDayData((draft) => {
-      const isPlaningStart = !draft.isPlanning
+      const newPlaningState = !draft.isPlanning
 
-      if (isPlaningStart) {
+      if (newPlaningState === true) {
         draft.isNotPlanning = false
+
+        const processingStepIndex = draft.timeSegmentList.findIndex(
+          ({ status }) => status === 'process'
+        )
+
+        if (processingStepIndex >= 0) {
+          draft.timeSegmentList[processingStepIndex].status = 'paused'
+        }
       }
 
-      draft.isPlanning = isPlaningStart
+      draft.isPlanning = newPlaningState
+    })
+  }
+
+  const toggleTimeObserving = () => {
+    setDayData((draft) => {
+      const newTimeObservingState = !draft.isTimeObserving
+
+      if (newTimeObservingState === false) {
+        draft.isPlanning = false
+        draft.isNotPlanning = false
+
+        const processingStepIndex = draft.timeSegmentList.findIndex(
+          ({ status }) => status === 'process'
+        )
+
+        if (processingStepIndex >= 0) {
+          draft.timeSegmentList[processingStepIndex].status = 'paused'
+        }
+      }
+
+      draft.isTimeObserving = newTimeObservingState
     })
   }
 
@@ -252,6 +293,7 @@ export const useTaskManager = (contentData: DateContent, selectedFilePath: strin
     incrementSkippedSecond,
     setDayData,
     toggleNotPlaning,
-    incrementNotPlanningSecond
+    incrementNotPlanningSecond,
+    toggleTimeObserving
   }
 }

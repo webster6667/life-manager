@@ -1,13 +1,13 @@
 import { Box, Stepper as OriginStepper } from '@mui/material'
 import { FC, ReactNode } from 'react'
 
-export const Stepper: FC<{ activeStepIndex: number; children: ReactNode }> = ({
+export const Stepper: FC<{ selectedStepIndex: number; children: ReactNode }> = ({
   children,
-  activeStepIndex
+  selectedStepIndex
 }) => {
   return (
     <OriginStepper
-      activeStep={activeStepIndex}
+      activeStep={selectedStepIndex}
       alternativeLabel
       connector={<Box sx={{ width: '100px', height: '2px', background: 'silver', mr: '16px' }} />}
       sx={{

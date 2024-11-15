@@ -40,6 +40,12 @@ declare module '*.ttf' {
   export default content
 }
 
+declare module '*.svg' {
+  import { ReactComponent as ReactComponentType } from 'react'
+  const content: ReactComponentType
+  export default content
+}
+
 import { ElectronAPI } from '@electron-toolkit/preload'
 import { ReadFile, WriteFile, CreateDirectory, DeleteFile, ReadDir } from '@common-shared/types'
 

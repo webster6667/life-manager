@@ -15,9 +15,9 @@ export const TaskList: FC<{
   onTaskDescriptionChange: useTaskManagerMethods['updateTaskDescription']
   navigation: (id: number) => ReactNode
   onDelete: useTaskManagerMethods['deleteTask']
-  activeStepIndex?: number
+  selectedStepIndex?: number
 }> = ({
-  activeStepIndex,
+  selectedStepIndex,
   taskList = [],
   placeholder,
   onTaskToggle,
@@ -40,25 +40,30 @@ export const TaskList: FC<{
                   columnGap: '10px'
                 }}
               >
-                <Checkbox checked={isFinished} onChange={() => onTaskToggle(id, activeStepIndex)} />
+                <Checkbox
+                  checked={isFinished}
+                  onChange={() => onTaskToggle(id, selectedStepIndex)}
+                />
                 <Stack flexGrow={1} spacing={3}>
                   <TextField
                     variant="standard"
                     value={value}
                     placeholder={`Задача номер ${index + 1}`}
                     onChange={(e) => {
-                      onTaskTextChange(id, e.target.value, activeStepIndex)
+                      onTaskTextChange(id, e.target.value, selectedStepIndex)
                     }}
                     fullWidth
                   />
                   <MarkdownEditor
                     value={description}
-                    onChange={(newValue) => onTaskDescriptionChange(id, newValue, activeStepIndex)}
+                    onChange={(newValue) =>
+                      onTaskDescriptionChange(id, newValue, selectedStepIndex)
+                    }
                   />
                 </Stack>
                 {navigation(id)}
                 <Fab size="small" color="error" aria-label="add">
-                  <Delete onClick={() => onDelete(id, activeStepIndex)} />
+                  <Delete onClick={() => onDelete(id, selectedStepIndex)} />
                 </Fab>
               </ListItem>
             ))}

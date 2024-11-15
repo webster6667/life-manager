@@ -13,7 +13,8 @@ export const getDefaultStepperLayout = (): StepperData => {
     planningSeconds: 0,
     notPlanningSeconds: 0,
     isPlanning: false,
-    isNotPlanning: false
+    isNotPlanning: false,
+    isTimeObserving: true
   }
 
   for (let i = 0; i < defaultTomatoCount; i++) {

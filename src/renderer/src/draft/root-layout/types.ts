@@ -1,7 +1,7 @@
 import { TimerResult } from 'react-timer-hook'
 
 export interface CurrentTimerResult extends TimerResult {
-  startWithSettings: (secondsToFinish: number) => void
+  startWithSettings: (secondsToFinish: number, autoStart?: boolean) => void
 }
 
 export type TaskComment = {
@@ -36,6 +36,7 @@ export type StepperData = {
   notPlanningSeconds: number
   isPlanning: boolean
   isNotPlanning: boolean
+  isTimeObserving: boolean
 }
 
 export type DateContent = StepperData | object

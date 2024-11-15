@@ -1,13 +1,12 @@
 {
   "extends": "@electron-toolkit/tsconfig/tsconfig.web.json",
   "include": [
-    "custom.d.ts",
     "src/**/*.tsx",
     "src/**/*.ts",
+    "custom.d.ts"
   ],
   "compilerOptions": {
     "composite": true,
-    "jsx": "react-jsx",
     "noUnusedLocals": false,
     "noImplicitReturns": false,
     "strictNullChecks": false,

@@ -10,17 +10,27 @@ import { Box, CircularProgress, Stack, Typography } from '@mui/material'
 import { PlayArrow, Pause, Add } from '@mui/icons-material'
 import { formatSecondsToRemainingTime } from '@renderer/draft/root-layout/helpers/format-seconds-to-remaining-time'
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { ReactComponent as Tomato } from '@assets/img/icons/tomato/tom.svg'
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { ReactComponent as Cucumber } from '@assets/img/icons/cucumbers/cuc.svg'
+
 import { getTimeStringFromTimerData } from '@renderer/draft/root-layout/helpers/get-time-string-from-timer-data'
+import {
+  defaultAdditionalCucumberTime,
+  defaultAdditionalPomodoroTime
+} from '@renderer/draft/root-layout/const'
 
 export const TimeSegment: FC<
   TimeSegmentProps & {
     timerData: CurrentTimerResult
     setDayData: Updater<StepperData>
     index: number
-    addTimeForTimeSegment: (timeSegmentIndex: number) => void
     timeSegmentList: TimeSegmentProps[]
+    isStepperForToday: boolean
   }
 > = ({
   status,
@@ -30,8 +40,8 @@ export const TimeSegment: FC<
   index,
   setDayData,
   additionalTime,
-  addTimeForTimeSegment,
-  timeSegmentList
+  timeSegmentList,
+  isStepperForToday
 }) => {
   const isInProcess = status === 'process'
   const isFinished = status === 'finished'
@@ -39,11 +49,36 @@ export const TimeSegment: FC<
   const nextSiblingStatus = timeSegmentList[index + 1]?.status || ''
   const isLastStep = nextSiblingStatus === ''
 
+  const addTimeForTimeItem = (timeSegmentIndex: number) => {
+    setDayData(({ timeSegmentList }) => {
+      const remainingSeconds = timerData.totalSeconds
+      if (timeSegmentIndex >= 0) {
+        const { type, status, timeToFinish } = timeSegmentList[timeSegmentIndex]
+        const additionalTime =
+          type === 'tomato' ? defaultAdditionalPomodoroTime : defaultAdditionalCucumberTime
+        timeSegmentList[timeSegmentIndex].timeToFinish = timeToFinish + additionalTime
+        timeSegmentList[timeSegmentIndex].additionalTime += additionalTime
+
+        if (status === 'process') {
+          timerData.startWithSettings(remainingSeconds + additionalTime)
+        } else if (status === 'finished' || status === 'paused') {
+          if (timeSegmentIndex < timeSegmentList.length - 1) {
+            timeSegmentList[timeSegmentIndex + 1].status = 'not-started'
+            timeSegmentList[timeSegmentIndex].status = 'paused'
+            timerData.startWithSettings(remainingSeconds + additionalTime, false)
+          }
+        }
+      }
+    })
+  }
+
   const startTimeItemHandler = () => {
     setDayData((draft) => {
       const currentStatus = draft.timeSegmentList[index].status
       draft.timeSegmentList[index].status = 'process'
       draft.isPlanning = false
+      draft.isNotPlanning = false
+      draft.isTimeObserving = true
 
       if (currentStatus === 'paused') {
         timerData.startWithSettings(+timerData.totalSeconds || timeToFinish)
@@ -60,11 +95,8 @@ export const TimeSegment: FC<
     })
   }
 
-  const addTimeForTimeSegmentHandler = () => {
-    addTimeForTimeSegment(index)
-  }
-
-  const value = isInProcess ? getPercentage(timeToFinish - timerData.totalSeconds, timeToFinish) : 0
+  const value =
+    isInProcess || isPaused ? getPercentage(timeToFinish - timerData.totalSeconds, timeToFinish) : 0
   const time = isInProcess
     ? getTimeStringFromTimerData(timerData)
     : formatSecondsToRemainingTime(isPaused ? timerData.totalSeconds : timeToFinish)
@@ -136,13 +168,21 @@ export const TimeSegment: FC<
         }}
         justifyContent="center"
       >
-        <Stack flexDirection="row" columnGap="5px" justifyContent="center" alignItems="center">
-          {additionalNavByStatus[status] && additionalNavByStatus[status]()}
-          <Typography variant="subtitle2">{time}</Typography>
-          {(isLastStep ||
-            nextSiblingStatus === 'waiting-start' ||
-            nextSiblingStatus === 'not-started') && <Add onClick={addTimeForTimeSegmentHandler} />}
-        </Stack>
+        {isStepperForToday ? (
+          <Stack flexDirection="row" columnGap="5px" justifyContent="center" alignItems="center">
+            {additionalNavByStatus[status] && additionalNavByStatus[status]()}
+            <Typography variant="subtitle2">{time}</Typography>
+            {(isLastStep ||
+              nextSiblingStatus === 'waiting-start' ||
+              nextSiblingStatus === 'not-started') && (
+              <Add onClick={() => addTimeForTimeItem(index)} />
+            )}
+          </Stack>
+        ) : (
+          <Typography sx={{ width: '100%', textAlign: 'center' }} variant="subtitle2">
+            {time}
+          </Typography>
+        )}
       </Stack>
     </Box>
   )

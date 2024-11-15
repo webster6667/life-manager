@@ -1,4 +1,5 @@
 export interface UseStepperTimerProps {
   onFinish?: () => void
-  isPaused?: boolean
+  isActiveStepPaused?: boolean
+  isStepperForToday: boolean
 }

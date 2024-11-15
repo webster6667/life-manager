@@ -70,7 +70,11 @@ export const RootLayout: FC<HTMLProps<HTMLDivElement>> = () => {
         <>
           {(isContentLoading || contentData === null) && <CircularProgress />}
           {contentData !== null && (
-            <PomodoroContent contentData={contentData} selectedFilePath={selectedFilePath} />
+            <PomodoroContent
+              contentData={contentData}
+              selectedFilePath={selectedFilePath}
+              selectedDate={selectedDate}
+            />
           )}
         </>
       )}
