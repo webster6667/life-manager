@@ -39,9 +39,9 @@
   font-weight: normal;
 }
 
-ul {
-  list-style: none;
-}
+/*ul {*/
+/*  list-style: none;*/
+/*}*/
 
 body {
   min-height: 100vh;

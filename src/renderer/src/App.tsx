@@ -9,7 +9,7 @@ import { RootLayout } from '@renderer/draft/root-layout'
 function App(): JSX.Element {
   return (
     <>
-      <CssBaseline />
+      {/*<CssBaseline />*/}
       <Global styles={globalStyles} />
 
       <ThemeProvider theme={primaryTheme}>

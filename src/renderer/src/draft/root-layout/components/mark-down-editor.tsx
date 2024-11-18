@@ -1,35 +1,123 @@
-import { FC, useState } from 'react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import { Box } from '@mui/material'
+import '@remirror/styles/all.css'
 
-export const MarkdownEditor: FC<{
+import { FC, PropsWithChildren, useCallback } from 'react'
+import jsx from 'refractor/lang/jsx.js'
+import typescript from 'refractor/lang/typescript.js'
+import { ExtensionPriority } from 'remirror'
+import {
+  BlockquoteExtension,
+  BoldExtension,
+  BulletListExtension,
+  CodeBlockExtension,
+  CodeExtension,
+  HardBreakExtension,
+  HeadingExtension,
+  ItalicExtension,
+  LinkExtension,
+  ListItemExtension,
+  MarkdownExtension,
+  OrderedListExtension,
+  PlaceholderExtension,
+  StrikeExtension,
+  TableExtension,
+  TrailingNodeExtension,
+  TaskListExtension
+} from 'remirror/extensions'
+import { i18nFormat } from '@remirror/i18n'
+import { EditorComponent, Remirror, ThemeProvider, useRemirror } from '@remirror/react'
+import { AllStyledComponent } from '@remirror/styles/emotion'
+
+import type { CreateEditorStateProps } from 'remirror'
+import type { RemirrorProps, UseThemeProps } from '@remirror/react'
+
+export interface ReactEditorProps
+  extends Pick<CreateEditorStateProps, 'stringHandler'>,
+    Pick<
+      RemirrorProps,
+      | 'initialContent'
+      | 'editable'
+      | 'autoFocus'
+      | 'hooks'
+      | 'i18nFormat'
+      | 'locale'
+      | 'supportedLocales'
+    > {
+  placeholder?: string
+  theme?: UseThemeProps['theme']
+}
+
+export interface MarkdownEditorProps extends Partial<Omit<ReactEditorProps, 'stringHandler'>> {
   value: string
-  onChange: (string) => void
-}> = ({ value, onChange }) => {
-  const [isEditable, setIsEditable] = useState(false)
+  onChange: (newValue: string) => void
+}
+
+/**
+ * The editor which is used to create the annotation. Supports formatting.
+ */
+export const MarkdownEditor: FC<PropsWithChildren<MarkdownEditorProps>> = ({
+  placeholder,
+  children,
+  theme,
+  value,
+  onChange
+}) => {
+  console.log(value, 'test')
+
+  const extensions = useCallback(
+    () => [
+      new LinkExtension({ autoLink: true }),
+      new PlaceholderExtension({ placeholder }),
+      new BoldExtension(),
+      new StrikeExtension(),
+      new ItalicExtension(),
+      new HeadingExtension(),
+      new BlockquoteExtension(),
+      new BulletListExtension({ enableSpine: true }),
+      new OrderedListExtension(),
+      new ListItemExtension({
+        priority: ExtensionPriority.High,
+        enableCollapsible: true
+      }),
+      new TaskListExtension(),
+      new CodeExtension(),
+      new CodeBlockExtension({ supportedLanguages: [jsx, typescript] }),
+      new TrailingNodeExtension(),
+      new TableExtension(),
+      new MarkdownExtension({ copyAsMarkdown: false }),
+      /**
+       * `HardBreakExtension` allows us to create a newline inside paragraphs.
+       * e.g. in a list item
+       */
+      new HardBreakExtension()
+    ],
+    [placeholder]
+  )
+
+  const { manager } = useRemirror({
+    extensions,
+    stringHandler: 'markdown',
+    content: value
+  })
 
   return (
-    <Box>
-      {isEditable ? (
-        <textarea
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="Write your markdown here..."
-          rows={10}
-          style={{ width: '100%', padding: '8px' }}
-          onBlur={() => setIsEditable(false)}
-        />
-      ) : (
-        <Box
-          tabIndex={1}
-          onFocus={() => setIsEditable(true)}
-          width={'100%'}
-          sx={{ border: `1px solid ${value ? 'transparent' : 'silver'}`, minHeight: '20px' }}
+    <AllStyledComponent>
+      <ThemeProvider theme={theme}>
+        <Remirror
+          manager={manager}
+          initialContent={value}
+          onChange={({ state }) => {
+            const markdownExtension = manager.getExtension(MarkdownExtension)
+            const markdown = markdownExtension?.getMarkdown(state) // Конвертация в Markdown
+            if (markdown) {
+              onChange(markdown) // Обновляем состояние
+            }
+          }}
+          i18nFormat={i18nFormat}
         >
-          <ReactMarkdown children={value} remarkPlugins={[remarkGfm]} />
-        </Box>
-      )}
-    </Box>
+          <EditorComponent />
+          {children}
+        </Remirror>
+      </ThemeProvider>
+    </AllStyledComponent>
   )
 }

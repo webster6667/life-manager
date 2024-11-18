@@ -64,7 +64,8 @@ export const PomodoroContent: FC<{
     selectStepHandler,
     hasStepInProgress,
     isActiveStepPaused,
-    isStepperNotFinished
+    isStepperNotFinished,
+    isStepperWasInitiated
   } = useStepper(timeSegmentList)
 
   const timerData = useStepperTimer({
@@ -79,6 +80,7 @@ export const PomodoroContent: FC<{
     isPlanning === false &&
     isNotPlanning === false &&
     hasStepInProgress === false &&
+    isStepperWasInitiated &&
     isTimeObserving
   const shouldWritePlanningTime = isPlanning && isStepperForToday
   const shouldWriteNotPlanning = isNotPlanning && isStepperForToday
