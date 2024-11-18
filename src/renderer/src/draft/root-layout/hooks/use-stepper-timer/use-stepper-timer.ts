@@ -16,12 +16,18 @@ export const useStepperTimer = (props: UseStepperTimerProps) => {
         onFinish && onFinish()
         window.localStorage.removeItem('remainingSeconds')
       },
-      autoStart: isActiveStepPaused || isStepperForToday ? false : remainingSeconds >= 0
+      autoStart: isActiveStepPaused || isStepperForToday === false ? false : remainingSeconds >= 0
     })
 
   useEffect(() => {
     window.localStorage.setItem('remainingSeconds', String(totalSeconds))
   }, [totalSeconds])
+
+  useEffect(() => {
+    if (isActiveStepPaused) {
+      pause()
+    }
+  }, [isActiveStepPaused])
 
   const startWithSettings = (secondsToFinish: number, autoStart = true) => {
     const timerFinishTime = new Date()
