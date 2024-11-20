@@ -14,10 +14,11 @@ import { AccessAlarm, Brush, Assignment } from '@mui/icons-material' // Import M
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { CommonNav } from '@renderer/draft/common-nav'
+import Paint from '@renderer/pages/paint'
 
 export const routes = [
   { path: '/pomodoro', label: 'Помидор', component: <RootLayout />, icon: <AccessAlarm /> },
-  { path: '/paint', label: 'Рисование', component: <div>paint</div>, icon: <Brush /> },
+  { path: '/paint', label: 'Рисование', component: <Paint />, icon: <Brush /> },
   { path: '/task', label: 'Задачи', component: <div>tasks</div>, icon: <Assignment /> }
 ]
 
