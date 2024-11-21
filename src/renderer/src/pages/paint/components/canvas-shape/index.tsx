@@ -61,8 +61,12 @@ const shapeNavList = [
 ]
 
 export const CanvasShapeWidget: FC<CanvasShapeWidgetProps> = ({ size, engine, node }) => {
-  const [currentSize, setCurrentSize] = useState(size)
   const [isResizing, setIsResizing] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [startY, setStartY] = useState(0)
+  const [originalWidth, setOriginalWidth] = useState(node.options.width || 100)
+  const [originalHeight, setOriginalHeight] = useState(node.options.height || 100)
+
   const [shapeNavValue, setShapeNavValue] = useState()
   const [shapeOptions, setShapeOptions] = useState({
     shape: 'rectangle',
@@ -82,15 +86,24 @@ export const CanvasShapeWidget: FC<CanvasShapeWidgetProps> = ({ size, engine, no
 
   const handleResizeStart = useCallback((e) => {
     setIsResizing(true)
+    setStartX(e.clientX)
+    setStartY(e.clientY)
+    setOriginalWidth(node.options.width || 100)
+    setOriginalHeight(node.options.height || 100)
     e.stopPropagation()
   }, [])
 
   const handleResize = useCallback(
     (e) => {
       if (isResizing) {
-        const newSize = Math.max(50, e.clientX - node.getX())
-        setCurrentSize(newSize)
-        node.options.size = newSize // Update the node model size
+        const deltaX = e.clientX - startX
+        const deltaY = e.clientY - startY
+
+        node.options.width = Math.max(50, originalWidth + deltaX) // Обновляем ширину
+        node.options.height = Math.max(50, originalHeight + deltaY)
+
+        setOriginalWidth(Math.max(50, originalWidth + deltaX))
+        setOriginalHeight(Math.max(50, originalHeight + deltaY))
       }
     },
     [isResizing, node]
@@ -98,6 +111,7 @@ export const CanvasShapeWidget: FC<CanvasShapeWidgetProps> = ({ size, engine, no
 
   const handleResizeEnd = useCallback(() => {
     setIsResizing(false)
+    document.body.style.userSelect = '' // Восстанавливаем выделение текста
   }, [])
 
   useEffect(() => {
@@ -117,9 +131,7 @@ export const CanvasShapeWidget: FC<CanvasShapeWidgetProps> = ({ size, engine, no
   return (
     <Box
       sx={{
-        position: 'relative',
-        width: currentSize,
-        height: currentSize
+        position: 'relative'
       }}
     >
       {node.isSelected() && (
@@ -152,8 +164,8 @@ export const CanvasShapeWidget: FC<CanvasShapeWidgetProps> = ({ size, engine, no
 
       <div
         style={{
-          width: `${currentSize}px`,
-          height: `${currentSize}px`,
+          width: originalWidth,
+          height: originalHeight,
           border: `1px solid ${node.isSelected() ? 'red' : 'silver'}`,
           borderRadius: shapeOptions.shape === 'oval' ? '1000px' : '6px',
           backgroundColor: shapeOptions.color
@@ -164,7 +176,7 @@ export const CanvasShapeWidget: FC<CanvasShapeWidgetProps> = ({ size, engine, no
       <PortWidget
         style={{
           position: 'absolute',
-          top: currentSize / 2 - 8,
+          top: originalHeight / 2 - 8,
           left: -8
         }}
         port={node.getPort(PortModelAlignment.LEFT)}
@@ -175,7 +187,7 @@ export const CanvasShapeWidget: FC<CanvasShapeWidgetProps> = ({ size, engine, no
       <PortWidget
         style={{
           position: 'absolute',
-          left: currentSize / 2 - 8,
+          left: originalWidth / 2 - 8,
           top: -8
         }}
         port={node.getPort(PortModelAlignment.TOP)}
@@ -186,8 +198,8 @@ export const CanvasShapeWidget: FC<CanvasShapeWidgetProps> = ({ size, engine, no
       <PortWidget
         style={{
           position: 'absolute',
-          left: currentSize - 8,
-          top: currentSize / 2 - 8
+          left: originalWidth - 8,
+          top: originalHeight / 2 - 8
         }}
         port={node.getPort(PortModelAlignment.RIGHT)}
         engine={engine}
@@ -197,18 +209,13 @@ export const CanvasShapeWidget: FC<CanvasShapeWidgetProps> = ({ size, engine, no
       <PortWidget
         style={{
           position: 'absolute',
-          left: currentSize / 2 - 8,
-          top: currentSize - 8
+          left: originalWidth / 2 - 8,
+          top: originalHeight - 8
         }}
         port={node.getPort(PortModelAlignment.BOTTOM)}
         engine={engine}
       >
-        <Port
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-          }}
-        />
+        <Port />
       </PortWidget>
       <ResizeHandle onMouseDown={handleResizeStart} />
     </Box>
@@ -232,7 +239,9 @@ export class CanvasShapePortModel extends PortModel {
 export class CanvasShapeModel extends NodeModel<NodeModelGenerics & CanvasShapeModelGenerics> {
   constructor() {
     super({
-      type: 'diamond'
+      type: 'diamond',
+      width: 500,
+      height: 200
     })
     this.addPort(new CanvasShapePortModel(PortModelAlignment.TOP))
     this.addPort(new CanvasShapePortModel(PortModelAlignment.LEFT))
