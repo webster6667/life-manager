@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useState, FC } from 'react'
+import { createPortal } from 'react-dom'
+import SettingsIcon from '@mui/icons-material/Settings'
 
 import { Port, ResizeHandle } from './styles'
 
 import { MarkdownEditor } from '@remirror/react-editors/markdown'
+import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 
 import {
   DefaultLinkModel,
@@ -12,15 +15,19 @@ import {
   NodeModelGenerics,
   PortModel,
   PortModelAlignment,
-  PortWidget
+  PortWidget,
+  DefaultLinkWidget,
+  DefaultLinkFactory
 } from '@projectstorm/react-diagrams'
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core'
-import { Box, List, ListItemButton, Tab, Tabs } from '@mui/material'
+import { Box, List, ListItemButton, Stack, Tab, Tabs } from '@mui/material'
 import {
   CanvasShapeModelGenerics,
   CanvasShapeWidgetProps
 } from '@renderer/pages/paint/components/canvas-shape/types'
+
+import CircleIcon from '@mui/icons-material/Circle'
 
 const shapeNavList = [
   {
@@ -115,31 +122,33 @@ export const CanvasShapeWidget: FC<CanvasShapeWidgetProps> = ({ size, engine, no
         height: currentSize
       }}
     >
-      <Box
-        sx={{
-          position: 'absolute',
-          top: '100%',
-          left: 0
-        }}
-      >
-        <Tabs value={shapeNavValue} onChange={(_, value) => setShapeNavValue(value)}>
-          {shapeNavList.map(({ value, label }) => (
-            <Tab value={value} label={label} key={value} />
-          ))}
-        </Tabs>
+      {node.isSelected() && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '100%',
+            left: 0
+          }}
+        >
+          <Tabs value={shapeNavValue} onChange={(_, value) => setShapeNavValue(value)}>
+            {shapeNavList.map(({ value, label }) => (
+              <Tab value={value} label={label} key={value} />
+            ))}
+          </Tabs>
 
-        {shapeNavValue && (
-          <List>
-            {shapeNavList
-              .find(({ value }) => value == shapeNavValue)
-              ['navItems'].map(({ label, value }) => (
-                <ListItemButton key={value} onClick={() => navItemClickHandler(value)}>
-                  {label}
-                </ListItemButton>
-              ))}
-          </List>
-        )}
-      </Box>
+          {shapeNavValue && (
+            <List>
+              {shapeNavList
+                .find(({ value }) => value == shapeNavValue)
+                ['navItems'].map(({ label, value }) => (
+                  <ListItemButton key={value} onClick={() => navItemClickHandler(value)}>
+                    {label}
+                  </ListItemButton>
+                ))}
+            </List>
+          )}
+        </Box>
+      )}
 
       <div
         style={{
@@ -194,7 +203,12 @@ export const CanvasShapeWidget: FC<CanvasShapeWidgetProps> = ({ size, engine, no
         port={node.getPort(PortModelAlignment.BOTTOM)}
         engine={engine}
       >
-        <Port />
+        <Port
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
+        />
       </PortWidget>
       <ResizeHandle onMouseDown={handleResizeStart} />
     </Box>
@@ -211,7 +225,7 @@ export class CanvasShapePortModel extends PortModel {
   }
 
   createLinkModel(): LinkModel {
-    return new DefaultLinkModel()
+    return new CustomLinkModel()
   }
 }
 
@@ -238,5 +252,134 @@ export class CanvasShapeNodeFactory extends AbstractReactFactory<CanvasShapeMode
 
   generateModel() {
     return new CanvasShapeModel()
+  }
+}
+
+const colors = ['blue', 'black', 'red']
+
+const Modal = ({ onColorChange, deleteLink, ...props }) => {
+  return createPortal(
+    <Box {...props}>
+      <Stack flexDirection="row">
+        {colors.map((color) => (
+          <CircleIcon
+            style={{ color: color }}
+            width={10}
+            height={10}
+            key={color}
+            onClick={() => onColorChange(color)}
+          />
+        ))}
+        <HighlightOffIcon width={10} height={10} onClick={deleteLink} />
+      </Stack>
+    </Box>,
+    document.getElementById('canvas').firstElementChild.lastElementChild
+  )
+}
+
+export const CustomLinkWidget = (props) => {
+  const { link } = props
+  const [isHovered, setIsHovered] = useState(false)
+  const [isClicked, setClicked] = useState(false)
+
+  const onColorChange = (color) => {
+    link.setColor(color)
+    props.diagramEngine.repaintCanvas() // Перерисовка диаграммы
+  }
+
+  // Удаление связи
+  const deleteLink = () => {
+    const diagramModel = props.diagramEngine.getModel() // Получаем модель диаграммы
+    if (diagramModel) {
+      diagramModel.removeLink(props.link) // Удаляем связь
+      props.diagramEngine.repaintCanvas() // Перерисовываем канвас
+    }
+  }
+
+  return (
+    <g
+      onMouseEnter={() => {
+        setIsHovered(true)
+      }}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <SettingsIcon
+        width="100px"
+        height="100px"
+        sx={{
+          pointerEvents: 'all'
+        }}
+        x={link.getMiddlePoint().x - 50}
+        y={link.getMiddlePoint().y}
+        onClick={() => {
+          setClicked(true)
+        }}
+      />
+
+      {isClicked && (
+        <Modal
+          style={{
+            left: `${link.getMiddlePoint().x}px`,
+            top: `${link.getMiddlePoint().y + 10}px`,
+            position: 'absolute',
+            width: '40px',
+            height: '20px',
+            pointerEvents: 'all'
+          }}
+          onColorChange={onColorChange}
+          deleteLink={deleteLink}
+        />
+      )}
+      <DefaultLinkWidget {...props} />
+    </g>
+  )
+}
+
+export class CustomLinkModel extends DefaultLinkModel {
+  constructor() {
+    super({
+      type: 'custom-link'
+    })
+  }
+
+  setColor(color: string) {
+    this.options.color = color
+    this.fireEvent({ color }, 'colorChanged')
+  }
+
+  serialize() {
+    return {
+      ...super.serialize()
+    }
+  }
+
+  deserialize(event) {
+    super.deserialize(event)
+  }
+
+  getMiddlePoint() {
+    const points = this.getPoints()
+    if (points.length < 2) return { x: 0, y: 0 }
+    const midIndex = Math.floor(points.length / 2) - 1
+    const start = points[midIndex].getPosition()
+    const end = points[midIndex + 1].getPosition()
+    return {
+      x: (start.x + end.x) / 2,
+      y: (start.y + end.y) / 2
+    }
+  }
+}
+
+export class CanvasShapeLinkFactory extends DefaultLinkFactory {
+  constructor() {
+    super('custom-link')
+  }
+
+  generateReactWidget(event): JSX.Element {
+    return <CustomLinkWidget link={event.model} diagramEngine={this.engine} />
+  }
+
+  generateModel() {
+    return new CustomLinkModel()
   }
 }

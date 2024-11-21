@@ -4,6 +4,7 @@ import { CanvasWidget } from '@projectstorm/react-canvas-core'
 import { Box } from '@mui/material'
 
 import {
+  CanvasShapeLinkFactory,
   CanvasShapeModel,
   CanvasShapeNodeFactory
 } from '@renderer/pages/paint/components/canvas-shape'
@@ -18,7 +19,7 @@ const DiagramWithNodes = () => {
     const modelInstance = new DiagramModel()
 
     // register some other factories as well
-    // engineInstance.getLinkFactories().registerFactory(new AdvancedLinkFactory())
+    engineInstance.getLinkFactories().registerFactory(new CanvasShapeLinkFactory())
 
     // .registerFactory(
     //   new SimplePortFactory('diamond', () => new CanvasShapePortModel(PortModelAlignment.LEFT))
@@ -58,7 +59,9 @@ const DiagramWithNodes = () => {
         <button onClick={addNode}>Add Node</button>
       </div>
       <Box
+        id={'canvas'}
         sx={{
+          position: 'relative',
           width: '100%',
           height: '100%',
           '& > div': {
