@@ -1,5 +1,10 @@
 import { useEffect, useState, useRef } from 'react'
-import createEngine, { DiagramModel } from '@projectstorm/react-diagrams'
+import createEngine, {
+  Action,
+  ActionEvent,
+  DiagramModel,
+  InputType
+} from '@projectstorm/react-diagrams'
 import { CanvasWidget } from '@projectstorm/react-canvas-core'
 import { Box } from '@mui/material'
 
@@ -16,6 +21,8 @@ const DiagramWithNodes = () => {
   const [count, setCount] = useState(1)
 
   useEffect(() => {
+    let lastClickTime = 0 // Переменная для времени последнего клика
+
     // Создаем движок и модель
     const engineInstance = createEngine({
       registerDefaultZoomCanvasAction: false, // Отключаем дефолтное зумирование
@@ -37,6 +44,44 @@ const DiagramWithNodes = () => {
     // Обновляем состояние
     setEngine(engineInstance)
     setModel(modelInstance)
+
+    // Обработчик клика через eventBus для добавления узлов
+    const handleCanvasClick = ({ event }: ActionEvent) => {
+      const currentTime = Date.now()
+
+      if (currentTime - lastClickTime < 500) {
+        // Получаем координаты клика на канвасе
+        const mousePoint = engineInstance.getRelativeMousePoint(event.nativeEvent as MouseEvent)
+
+        // Создаем новый узел с позиции клика
+        const node = new CanvasShapeModel()
+
+        // Устанавливаем позицию узла
+        node.setPosition(mousePoint.x, mousePoint.y)
+
+        // Добавляем узел в модель
+        modelInstance.addNode(node)
+
+        // Обновляем канвас
+        engineInstance.repaintCanvas()
+      }
+
+      lastClickTime = currentTime // Обновляем время последнего клика
+    }
+
+    // Создаем действие для клика
+    const clickAction = new Action({
+      type: InputType.MOUSE_UP, // Используем тип события из InputType
+      fire: handleCanvasClick // Ваш обработчик
+    })
+
+    // Регистрируем действие
+    engineInstance.getActionEventBus().registerAction(clickAction)
+
+    return () => {
+      // Очищаем действие при размонтировании
+      engineInstance.getActionEventBus().deregisterAction(clickAction)
+    }
   }, [])
 
   const addNode = () => {
@@ -60,6 +105,8 @@ const DiagramWithNodes = () => {
     return <div>Loading...</div>
   }
 
+  console.log(canvasRef.current, 'ts')
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <div style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>
@@ -77,7 +124,7 @@ const DiagramWithNodes = () => {
           }
         }}
       >
-        <CanvasWidget engine={engine} ref={canvasRef} />
+        <CanvasWidget engine={engine} />
       </Box>
     </div>
   )
