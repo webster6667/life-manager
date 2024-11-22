@@ -61,8 +61,6 @@ export const MarkdownEditor: FC<PropsWithChildren<MarkdownEditorProps>> = ({
   value,
   onChange
 }) => {
-  console.log(value, 'test')
-
   const extensions = useCallback(
     () => [
       new LinkExtension({ autoLink: true }),

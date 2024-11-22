@@ -20,7 +20,7 @@ import {
   DefaultLinkFactory
 } from '@projectstorm/react-diagrams'
 
-import { AbstractReactFactory } from '@projectstorm/react-canvas-core'
+import { AbstractModelFactory, AbstractReactFactory } from '@projectstorm/react-canvas-core'
 import { Box, List, ListItemButton, Stack, Tab, Tabs } from '@mui/material'
 import {
   CanvasShapeModelGenerics,
@@ -225,7 +225,7 @@ export const CanvasShapeWidget: FC<CanvasShapeWidgetProps> = ({ size, engine, no
 export class CanvasShapePortModel extends PortModel {
   constructor(alignment: PortModelAlignment) {
     super({
-      type: 'diamond',
+      type: 'diamond-port',
       name: alignment,
       alignment: alignment
     })
@@ -233,6 +233,19 @@ export class CanvasShapePortModel extends PortModel {
 
   createLinkModel(): LinkModel {
     return new CustomLinkModel()
+  }
+}
+
+export class CanvasShapePortFactory extends AbstractModelFactory<
+  CanvasShapePortModel,
+  DiagramEngine
+> {
+  constructor() {
+    super('diamond-port')
+  }
+
+  generateModel() {
+    return new CanvasShapePortModel()
   }
 }
 
@@ -287,7 +300,8 @@ const Modal = ({ onColorChange, deleteLink, ...props }) => {
 }
 
 export const CustomLinkWidget = (props) => {
-  const { link } = props
+  // const { link } = props
+  const link = props?.link as CustomLinkModel
   const [isHovered, setIsHovered] = useState(false)
   const [isClicked, setClicked] = useState(false)
 
@@ -307,10 +321,42 @@ export const CustomLinkWidget = (props) => {
 
   return (
     <g
-      onMouseEnter={() => {
-        setIsHovered(true)
+      onMouseUp={() => {
+        if (!link.getTargetPort()) {
+          const sourcePortAlignment = link.sourcePort.options.alignment
+          // console.log(link, link.sourcePort.options.alignment, 'test')
+
+          const mirroMap = {
+            [PortModelAlignment.BOTTOM]: PortModelAlignment.TOP,
+            [PortModelAlignment.TOP]: PortModelAlignment.BOTTOM,
+            [PortModelAlignment.LEFT]: PortModelAlignment.RIGHT,
+            [PortModelAlignment.RIGHT]: PortModelAlignment.LEFT
+          }
+
+          // Получаем позицию последней точки линка
+          const lastPoint = link.getLastPoint()
+          const { x, y } = lastPoint.getPosition()
+
+          // Создаем новую Node
+          const newNode = new CanvasShapeModel()
+
+          // Устанавливаем позицию новой Node в месте конечной точки линка
+          newNode.setPosition(x - 250, y)
+
+          // Добавляем новый выходной порт к Node
+          const newPort = newNode.getPort(mirroMap[sourcePortAlignment])
+
+          // Привязываем конечную точку линка к новому порту
+          link.setTargetPort(newPort)
+
+          // Добавляем Node в модель диаграммы
+          const model = props.diagramEngine.getModel()
+          model.addNode(newNode)
+
+          // Перерисовываем холст
+          props.diagramEngine.repaintCanvas()
+        }
       }}
-      onMouseLeave={() => setIsHovered(false)}
     >
       <SettingsIcon
         width="100px"

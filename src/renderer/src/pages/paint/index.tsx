@@ -11,7 +11,8 @@ import { Box } from '@mui/material'
 import {
   CanvasShapeLinkFactory,
   CanvasShapeModel,
-  CanvasShapeNodeFactory
+  CanvasShapeNodeFactory,
+  CanvasShapePortFactory
 } from '@renderer/pages/paint/components/canvas-shape'
 
 const DiagramWithNodes = () => {
@@ -32,6 +33,7 @@ const DiagramWithNodes = () => {
 
     // register some other factories as well
     engineInstance.getLinkFactories().registerFactory(new CanvasShapeLinkFactory())
+    engineInstance.getPortFactories().registerFactory(new CanvasShapePortFactory())
 
     // .registerFactory(
     //   new SimplePortFactory('diamond', () => new CanvasShapePortModel(PortModelAlignment.LEFT))
@@ -40,6 +42,17 @@ const DiagramWithNodes = () => {
 
     // Связываем модель с движком
     engineInstance.setModel(modelInstance)
+
+    // Загружаем сохранённое состояние
+    const savedData = localStorage.getItem('st')
+    if (savedData) {
+      try {
+        const jsonData = JSON.parse(savedData)
+        modelInstance.deserializeModel(jsonData, engineInstance) // Десериализация модели
+      } catch (error) {
+        console.error('Error loading diagram state:', error)
+      }
+    }
 
     // Обновляем состояние
     setEngine(engineInstance)
@@ -78,9 +91,23 @@ const DiagramWithNodes = () => {
     // Регистрируем действие
     engineInstance.getActionEventBus().registerAction(clickAction)
 
+    const eventListener = (event) => {
+      const serializedModel = modelInstance.serialize() // Сериализация модели
+      localStorage.setItem('st', JSON.stringify(serializedModel))
+    }
+
+    // Регистрируем слушатель для событий модели
+    modelInstance.registerListener({
+      eventDidFire: eventListener
+    })
+
     return () => {
       // Очищаем действие при размонтировании
       engineInstance.getActionEventBus().deregisterAction(clickAction)
+
+      modelInstance.deregisterListener({
+        eventDidFire: eventListener
+      })
     }
   }, [])
 
@@ -104,8 +131,6 @@ const DiagramWithNodes = () => {
   if (!engine) {
     return <div>Loading...</div>
   }
-
-  console.log(canvasRef.current, 'ts')
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
