@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import createEngine, { DiagramModel } from '@projectstorm/react-diagrams'
 import { CanvasWidget } from '@projectstorm/react-canvas-core'
 import { Box } from '@mui/material'
@@ -12,10 +12,15 @@ import {
 const DiagramWithNodes = () => {
   const [engine, setEngine] = useState<any | null>(null)
   const [model, setModel] = useState<any | null>(null)
+  const canvasRef = useRef(null)
+  const [count, setCount] = useState(1)
 
   useEffect(() => {
     // Создаем движок и модель
-    const engineInstance = createEngine()
+    const engineInstance = createEngine({
+      registerDefaultZoomCanvasAction: false, // Отключаем дефолтное зумирование
+      registerDefaultPanAndZoomCanvasAction: true // Включаем стандартное перемещение + зум
+    })
     const modelInstance = new DiagramModel()
 
     // register some other factories as well
@@ -36,6 +41,8 @@ const DiagramWithNodes = () => {
 
   const addNode = () => {
     if (!model || !engine) return
+
+    setCount((prev) => prev + 1)
 
     const newNode = new CanvasShapeModel()
 
@@ -70,7 +77,7 @@ const DiagramWithNodes = () => {
           }
         }}
       >
-        <CanvasWidget engine={engine} />
+        <CanvasWidget engine={engine} ref={canvasRef} />
       </Box>
     </div>
   )
