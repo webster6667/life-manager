@@ -236,18 +236,18 @@ export class CanvasShapePortModel extends PortModel {
   }
 }
 
-export class CanvasShapePortFactory extends AbstractModelFactory<
-  CanvasShapePortModel,
-  DiagramEngine
-> {
-  constructor() {
-    super('diamond-port')
-  }
-
-  generateModel() {
-    return new CanvasShapePortModel()
-  }
-}
+// export class CanvasShapePortFactory extends AbstractModelFactory<
+//   CanvasShapePortModel,
+//   DiagramEngine
+// > {
+//   constructor() {
+//     super('diamond-port')
+//   }
+//
+//   generateModel() {
+//     return new CanvasShapePortModel()
+//   }
+// }
 
 export class CanvasShapeModel extends NodeModel<NodeModelGenerics & CanvasShapeModelGenerics> {
   constructor() {
