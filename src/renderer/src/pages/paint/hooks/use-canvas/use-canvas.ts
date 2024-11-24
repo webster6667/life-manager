@@ -46,9 +46,11 @@ export const useCanvas = () => {
       // Очищаем действие при размонтировании
       engine.getActionEventBus().deregisterAction(dbClickAction)
 
-      diagramModel.deregisterListener({
-        eventDidFire: savingListener
-      })
+      if (typeof diagramModel.deregisterListener === 'function' && savingListener) {
+        diagramModel.deregisterListener({
+          eventDidFire: savingListener
+        })
+      }
     }
   }, [])
 

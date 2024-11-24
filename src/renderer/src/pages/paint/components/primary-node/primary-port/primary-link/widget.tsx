@@ -1,9 +1,5 @@
 import { FC, useState } from 'react'
-import {
-  DefaultLinkProps,
-  DefaultLinkWidget,
-  PortModelAlignment
-} from '@projectstorm/react-diagrams'
+import { DefaultLinkProps, DefaultLinkWidget } from '@projectstorm/react-diagrams'
 import SettingsIcon from '@mui/icons-material/Settings'
 
 import { portMirrorMap } from '@renderer/pages/paint/components/primary-node/primary-port/primary-link/const'

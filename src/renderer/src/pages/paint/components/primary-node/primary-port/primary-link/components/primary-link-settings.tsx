@@ -3,6 +3,7 @@ import { Box, Stack } from '@mui/material'
 import CircleIcon from '@mui/icons-material/Circle'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import { colors } from './../const'
+import { canvasId } from '@renderer/pages/paint/const'
 
 export const PrimaryLinkSettingsPortal = ({ onColorChange, deleteLink, ...props }) => {
   return createPortal(
@@ -20,6 +21,6 @@ export const PrimaryLinkSettingsPortal = ({ onColorChange, deleteLink, ...props 
         <HighlightOffIcon width={10} height={10} onClick={deleteLink} />
       </Stack>
     </Box>,
-    document.getElementById('canvas').firstElementChild.firstElementChild.lastElementChild
+    document.getElementById(canvasId).firstElementChild.lastElementChild
   )
 }

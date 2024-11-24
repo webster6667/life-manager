@@ -46,7 +46,7 @@ export const PrimaryNodeWidget: FC<PrimaryNodeWidgetProps> = ({ engine, node }) 
           backgroundColor: shapeOptions.color
         }}
       >
-        <MarkdownEditor />
+        <MarkdownEditor autoFocus={false} />
       </div>
 
       {ports.map((port) => (

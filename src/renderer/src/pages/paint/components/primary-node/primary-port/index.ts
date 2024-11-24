@@ -1,9 +1,4 @@
-import {
-  DefaultLinkModel,
-  LinkModel,
-  PortModel,
-  PortModelAlignment
-} from '@projectstorm/react-diagrams'
+import { LinkModel, PortModel, PortModelAlignment } from '@projectstorm/react-diagrams'
 import { PrimaryLinkModel } from './primary-link/index'
 import { AbstractModelFactory } from '@projectstorm/react-canvas-core'
 import { DiagramEngine } from '@projectstorm/react-diagrams-core'
@@ -18,7 +13,7 @@ export class PrimaryPortModel extends PortModel {
   }
 
   createLinkModel(): LinkModel {
-    return new DefaultLinkModel()
+    return new PrimaryLinkModel()
   }
 }
 
