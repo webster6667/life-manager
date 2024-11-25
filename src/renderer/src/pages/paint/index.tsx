@@ -1,17 +1,21 @@
-import { CanvasWidget } from '@projectstorm/react-canvas-core'
+import { Canvas } from './canvas'
 
-import { CanvasWrapper } from '@renderer/pages/paint/components/ui/canvas-wrapper'
-
-import { CircularProgress } from '@mui/material'
-import { useCanvas } from '@renderer/pages/paint/hooks/use-canvas'
+import { TemplateGrid } from '@renderer/draft/root-layout/ui/template-grid'
+import { RootSidebar } from '@renderer/pages/paint/root-sidebar'
+import { useState } from 'react'
 
 const DiagramWithNodes = () => {
-  const { engine, isCanvasReadyToPaint } = useCanvas()
+  const [selectedFile, setSelectedFile] = useState<string | undefined>()
 
   return (
-    <CanvasWrapper>
-      {isCanvasReadyToPaint ? <CanvasWidget engine={engine} /> : <CircularProgress />}
-    </CanvasWrapper>
+    <TemplateGrid
+      sidebarContent={() => (
+        <RootSidebar selectedFile={selectedFile} setSelectedFile={setSelectedFile} />
+      )}
+      selectedContend={() =>
+        selectedFile ? <Canvas selectedFile={selectedFile} /> : <div>Файл не выбран</div>
+      }
+    />
   )
 }
 

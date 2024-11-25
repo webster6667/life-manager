@@ -1,8 +1,16 @@
-import { WriteFile, ReadFile, DeleteFile, CreateDirectory, ReadDir } from '@common-shared/types'
+import {
+  WriteFile,
+  ReadFile,
+  DeleteFile,
+  CreateDirectory,
+  ReadDir,
+  MoveFile
+} from '@common-shared/types'
 
 type FileSystemAdapter = {
   createFile: WriteFile
   updateFile: WriteFile
+  moveFile: MoveFile
   readFile: ReadFile
   readDir: ReadDir
   deleteFile: DeleteFile
@@ -31,6 +39,15 @@ export const fileSystemAdapter: FileSystemAdapter = {
   readFile: async (filePath) => {
     try {
       return await window.context.readFile(filePath)
+    } catch (error) {
+      console.error('Error reading file:', error.message)
+      throw error
+    }
+  },
+
+  moveFile: async (filePath, destinationFilePath) => {
+    try {
+      return await window.context.moveFile(filePath, destinationFilePath)
     } catch (error) {
       console.error('Error reading file:', error.message)
       throw error

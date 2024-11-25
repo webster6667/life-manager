@@ -1,12 +1,22 @@
 import { DiagramModel } from '@projectstorm/react-diagrams'
 import { DiagramEngine } from '@projectstorm/react-diagrams-core'
+import { isEmpty } from 'lodash'
 
-export const initCanvasData = (modelInstance: DiagramModel, engineInstance: DiagramEngine) => {
-  const savedData = localStorage.getItem('st')
-  if (savedData) {
+export const initCanvasData = (
+  modelInstance: DiagramModel,
+  engineInstance: DiagramEngine,
+  initData: string
+) => {
+  if (initData) {
     try {
-      const jsonData = JSON.parse(savedData)
-      modelInstance.deserializeModel(jsonData, engineInstance) // Десериализация модели
+      const jsonData = JSON.parse(initData)
+
+      modelInstance.deserializeModel(
+        isEmpty(jsonData) ? new DiagramModel().serialize() : jsonData,
+        engineInstance
+      )
+
+      engineInstance.repaintCanvas()
     } catch (error) {
       console.error('Error loading diagram state:', error)
     }

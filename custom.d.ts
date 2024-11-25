@@ -47,7 +47,14 @@ declare module '*.svg' {
 }
 
 import { ElectronAPI } from '@electron-toolkit/preload'
-import { ReadFile, WriteFile, CreateDirectory, DeleteFile, ReadDir } from '@common-shared/types'
+import {
+  ReadFile,
+  WriteFile,
+  CreateDirectory,
+  DeleteFile,
+  ReadDir,
+  MoveFile
+} from '@common-shared/types'
 
 declare global {
   interface Window {
@@ -58,6 +65,7 @@ declare global {
       createDirectory: CreateDirectory
       createFile: WriteFile
       updateFile: WriteFile
+      moveFile: MoveFile
       readFile: ReadFile
       readDir: ReadDir
       deleteFile: DeleteFile

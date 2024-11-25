@@ -5,8 +5,9 @@ import {
   pathExists,
   outputFile,
   readFile as fsReadFile,
-  unlink,
-  readdir
+  remove,
+  readdir,
+  move
 } from 'fs-extra'
 import path from 'path'
 import {
@@ -14,8 +15,10 @@ import {
   WriteFile,
   ReadFile,
   DeleteFile,
-  ReadDir
+  ReadDir,
+  MoveFile
 } from './../../common-shared/types'
+import { FileTreeNode } from '@common-shared/models'
 
 export const rootDir = `${homedir()}/${appDirectoryName}`
 
@@ -70,6 +73,35 @@ export const updateFile: WriteFile = async (filePath, content) => {
   }
 }
 
+export const moveFile: MoveFile = async (sourcePath, destinationPath) => {
+  const fullSourcePath = path.resolve(rootDir, sourcePath)
+  const fullDestinationPath = path.resolve(rootDir, destinationPath)
+
+  try {
+    // Проверяем, существует ли исходный путь
+    const sourceExists = await pathExists(fullSourcePath)
+    if (!sourceExists) {
+      throw new Error(`Source does not exist at ${fullSourcePath}`)
+    }
+
+    // Проверяем, не занят ли целевой путь
+    const destinationExists = await pathExists(fullDestinationPath)
+    if (destinationExists) {
+      throw new Error(`Destination already exists at ${fullDestinationPath}`)
+    }
+
+    try {
+      // Перемещаем/переименовываем
+      await move(fullSourcePath, fullDestinationPath)
+      return destinationPath
+    } catch (err) {
+      throw new Error(`Failed to move from ${fullSourcePath} to ${fullDestinationPath}`)
+    }
+  } catch (err) {
+    console.error(`Error moving from ${fullSourcePath} to ${fullDestinationPath}:`, err)
+  }
+}
+
 export const readFile: ReadFile = async (filePath) => {
   const fullPath = path.resolve(rootDir, filePath)
 
@@ -88,7 +120,7 @@ export const readFile: ReadFile = async (filePath) => {
 
 export const readDir: ReadDir = async (
   dirPath,
-  { createIfNotExist = false, shouldShowDotsFiles = false }
+  { createIfNotExist = false, shouldShowDotsFiles = false, isRecursive = false }
 ) => {
   const fullPath = path.resolve(rootDir, dirPath)
 
@@ -101,6 +133,43 @@ export const readDir: ReadDir = async (
       } else {
         throw new Error(`Directory does not exist at ${fullPath}`)
       }
+    }
+
+    if (isRecursive) {
+      const readDirectoryRecursive = async (dirPath: string): Promise<FileTreeNode[]> => {
+        const entries = await readdir(dirPath, { withFileTypes: true }).then((result) => {
+          return result.filter((item) => !item.name.startsWith('.'))
+        })
+
+        const result: FileTreeNode[] = await Promise.all(
+          entries.map(async (entry) => {
+            const fullPath = path.join(dirPath, entry.name)
+            const isDirectory = entry.isDirectory()
+
+            if (isDirectory) {
+              const children = await readDirectoryRecursive(fullPath)
+              return {
+                name: entry.name,
+                path: fullPath,
+                isDirectory: true,
+                children
+              }
+            }
+
+            return {
+              name: entry.name,
+              path: fullPath,
+              isDirectory: false
+            }
+          })
+        )
+
+        return result
+      }
+
+      const contents = await readDirectoryRecursive(fullPath)
+
+      return contents
     }
 
     const contents = await readdir(fullPath)
@@ -119,7 +188,7 @@ export const deleteFile: DeleteFile = async (filePath) => {
       throw new Error(`File does not exist at ${fullPath}`)
     }
 
-    await unlink(fullPath)
+    await remove(fullPath)
   } catch (err) {
     console.error(`Error delete file at ${fullPath}:`, err)
   }
