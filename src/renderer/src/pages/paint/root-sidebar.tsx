@@ -1,6 +1,7 @@
 import React, { FC, useState } from 'react'
 
 import {
+  Box,
   Button,
   CircularProgress,
   Collapse,
@@ -22,6 +23,8 @@ import { useDidMount } from '@common-hook'
 import { fileSystemAdapter } from '@renderer/api/fileSystemAdapter'
 import { FileTreeNode } from '@common-shared/models'
 import { paintDirectoryName } from '@common-shared/constants'
+
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 
 interface FileTreeProps {
   nodes: FileTreeNode[]
@@ -141,6 +144,22 @@ const FileTree: FC<FileTreeProps> = ({
             >
               <Delete />
             </ListItemIcon>
+            {!node.isDirectory && (
+              <Box
+                draggable
+                onDragStart={(event) => {
+                  event.dataTransfer.setData('text/plain', node.path)
+                }}
+                sx={{
+                  cursor: 'grab', // Изменяем курсор для наглядности
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <DragIndicatorIcon />
+              </Box>
+            )}
           </Stack>
         </ListItemButton>
         {node.isDirectory && node.children && (

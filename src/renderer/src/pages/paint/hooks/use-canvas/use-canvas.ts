@@ -12,7 +12,12 @@ import { registerUpdateSaving } from '@renderer/pages/paint/hooks/use-canvas/hel
 import { PrimaryNodeFactory } from '@renderer/pages/paint/components/primary-node'
 import { PrimaryLinkFactory } from '@renderer/pages/paint/components/primary-node/primary-port/primary-link'
 import { fileSystemAdapter } from '@renderer/api/fileSystemAdapter'
-import { isEmpty } from 'lodash'
+import { ContainerNodeFactory } from '@renderer/pages/paint/components/container-node'
+import {
+  SecondaryPortFactory,
+  SecondaryPortModel
+} from '@renderer/pages/paint/components/secondary-node/secondary-port'
+import { SecondaryNodeFactory } from '@renderer/pages/paint/components/secondary-node'
 
 export const useCanvas = ({ selectedFile }: { selectedFile: string }) => {
   const [engineInstance, setEngineInstance] = useState<DiagramEngine>(null)
@@ -28,8 +33,20 @@ export const useCanvas = ({ selectedFile }: { selectedFile: string }) => {
       .registerFactory(
         new PrimaryPortFactory('diamond', () => new PrimaryPortModel(PortModelAlignment.LEFT))
       )
+
+    engine
+      .getPortFactories()
+      .registerFactory(
+        new SecondaryPortFactory(
+          'secondary-port',
+          () => new SecondaryPortModel(PortModelAlignment.LEFT)
+        )
+      )
+
     engine.getLinkFactories().registerFactory(new PrimaryLinkFactory())
     engine.getNodeFactories().registerFactory(new PrimaryNodeFactory())
+    engine.getNodeFactories().registerFactory(new ContainerNodeFactory())
+    engine.getNodeFactories().registerFactory(new SecondaryNodeFactory())
 
     engine.setModel(diagramModel)
 
