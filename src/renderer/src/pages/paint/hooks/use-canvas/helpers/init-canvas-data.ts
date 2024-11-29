@@ -11,6 +11,8 @@ export const initCanvasData = (
     try {
       const jsonData = JSON.parse(initData)
 
+      // console.log(jsonData, 'abcd')
+
       modelInstance.deserializeModel(
         isEmpty(jsonData) ? new DiagramModel().serialize() : jsonData,
         engineInstance

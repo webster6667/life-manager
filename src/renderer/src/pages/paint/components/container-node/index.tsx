@@ -99,8 +99,6 @@ export const ContainerNodeWidget: FC<ContainerNodeWidgetProps> = ({ node, engine
     const links = fileData.layers[0].models
     const nodes = fileData.layers[1].models
 
-    setNodes(Object.values(nodes))
-
     console.log(nodes, 'ports')
     // {
     //   "id": "b7d9cf1c-5d2e-4b52-829f-478a1ecb7c42",
@@ -115,42 +113,41 @@ export const ContainerNodeWidget: FC<ContainerNodeWidgetProps> = ({ node, engine
     // ]
     // }
 
-    node.addPort(new SecondaryPortModel(PortModelAlignment.TOP, `${PortModelAlignment.TOP}`))
+    // node.addPort(new SecondaryPortModel(PortModelAlignment.TOP, `${PortModelAlignment.TOP}`))
     //
-    // Object.keys(nodes).forEach(({ id, type, port, x, y }) => {
-    //   const node = new SecondaryNodeModel()
-    //   node.setPosition(x, y)
-    //
-    //   // engine.getModel().addNode(node)
-    //
-    //   //
-    //   engine.repaintCanvas()
-    // })
+    Object.values(nodes).forEach(({ id, ports }) => {
+      ports.forEach(({ name }) => {
+        const portName = `${id}_${name}`
+        node.addPort(new SecondaryPortModel(name, portName))
+      })
+    })
+
+    setNodes(Object.values(nodes))
   })
 
   return (
     <div className="container-node-widget">
-      <h3>Container Node</h3>
-      <div className="nested-nodes" style={{ position: 'relative' }}>
+      {/*<h3>Container Node</h3>*/}
+      <div
+        className="nested-nodes"
+        style={{ position: 'relative', width: '800px', height: '800px' }}
+      >
         {/*{engine.getNodeFactories().getFactory(n.getType())}*/}
 
         {nodes.length &&
-          nodes.map(({ x, y, ports }: NodeProps, index) => {
+          nodes.map(({ id, x, y, ports }: NodeProps, index) => {
             const childrenNode = new SecondaryNodeModel()
-            // const parentPorts = []
 
-            // ports.forEach(({ id, name }) => {
-            //   const portName = `${id}_${name}`
-            //   node.addPort(new SecondaryPortModel(name, portName))
-            //   parentPorts.push(node.getPort(portName))
-            // })
+            const portsList = Object.values(node.getPorts()).filter((item) => {
+              return item.options.name.startsWith(id)
+            })
 
             return (
               <div key={index} style={{ position: 'absolute', left: x, top: y }}>
                 {engine
                   .getNodeFactories()
                   .getFactory('secondary-node')
-                  .generateReactWidget({ model: childrenNode })}
+                  .generateReactWidget({ model: childrenNode }, portsList)}
               </div>
             )
           })}
