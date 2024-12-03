@@ -181,7 +181,7 @@ export const RootSidebar: FC<{ selectedFile: string; setSelectedFile: (string) =
 }) => {
   const [canvasFileList, setCanvasFileList] = useState<FileTreeNode[]>()
 
-  const isDataUploaded = useDidMount(async () => {
+  const [isDataUploaded] = useDidMount(async () => {
     const canvasReadFiles = (await fileSystemAdapter.readDir(paintDirectoryName, {
       createIfNotExist: true,
       isRecursive: true

@@ -1,0 +1,66 @@
+import { IUseStylingOptions, useStyling } from '@easy-diagram/hooks/useStyling'
+import { observer } from 'mobx-react-lite'
+import React, { useMemo } from 'react'
+import type { IPortVisualComponentProps } from '@easy-diagram/states/portsSettings'
+import type { IComponentDefinition } from '@easy-diagram/states/visualComponentState'
+
+const PortInnerDefault: React.FC<IPortVisualComponentProps<IPortInnerDefaultSettings>> = observer(
+  ({ entity, settings }) => {
+    const stylingOptions = useMemo<IUseStylingOptions>(
+      () => ({
+        removeDefaultClasses: settings?.removeDefaultClasses,
+        baseState: 'base',
+        classes: settings?.classes,
+        defaultClasses: defaultPortInnerClasses,
+        style: settings?.style
+      }),
+      [settings]
+    )
+
+    let state = 'base'
+    if (entity.dragging) state = 'dragging'
+    else if (entity.hovered && entity.validForConnection) state = 'hovered'
+    else if (entity.hovered && !entity.validForConnection) state = 'invalid'
+    else if (entity.node.selected) state = 'node-selected'
+    else if (entity.node.hovered) state = 'node-hovered'
+
+    const styling = useStyling(stylingOptions, state)
+
+    return <div className={styling.className} style={styling.style}></div>
+  }
+)
+
+export type PortInnerDefaultState =
+  | 'base'
+  | 'hovered'
+  | 'dragging'
+  | 'invalid'
+  | 'node-hovered'
+  | 'node-selected'
+export type PortInnerDefaultSettingsByStates<TValue> = {
+  [key in PortInnerDefaultState]?: TValue
+}
+
+export interface IPortInnerDefaultSettings {
+  removeDefaultClasses?: true
+  classes?: PortInnerDefaultSettingsByStates<string[]>
+  style?: PortInnerDefaultSettingsByStates<React.CSSProperties>
+}
+
+export const defaultPortInnerClasses: PortInnerDefaultSettingsByStates<string[]> = {
+  base: ['react_fast_diagram_PortInnerDefault'],
+  hovered: ['react_fast_diagram_PortInnerDefault_Hovered'],
+  dragging: ['react_fast_diagram_PortInnerDefault_Dragging'],
+  invalid: ['react_fast_diagram_PortInnerDefault_Invalid'],
+  'node-hovered': ['react_fast_diagram_PortInnerDefault_NodeHovered'],
+  'node-selected': ['react_fast_diagram_PortInnerDefault_NodeSelected']
+}
+
+export function createPortInnerDefault(
+  settings?: IPortInnerDefaultSettings
+): IComponentDefinition<IPortVisualComponentProps, IPortInnerDefaultSettings> {
+  return {
+    component: PortInnerDefault,
+    settings: settings
+  }
+}

@@ -12,6 +12,9 @@
     "strictNullChecks": false,
     "baseUrl": ".",
     "paths": {
+      "@easy-diagram/*": [
+        "src/renderer/src/api/easy-components/*"
+      ],
       "@renderer/*": [
         "src/renderer/src/*"
       ],

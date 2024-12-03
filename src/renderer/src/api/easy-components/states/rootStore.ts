@@ -1,0 +1,122 @@
+import { Callbacks, ICallbacks } from '@easy-diagram/states/callbacks'
+import { DiagramSettings, IDiagramSettings } from '@easy-diagram/states/diagramSettings'
+import { DiagramState } from '@easy-diagram/states/diagramState'
+import { LinksSettings, ILinksSettings } from '@easy-diagram/states/linksSettings'
+import { LinksStore } from '@easy-diagram/states/linksStore'
+import { ILinkState } from '@easy-diagram/states/linkState'
+import { NodesSettings, INodesSettings } from '@easy-diagram/states/nodesSettings'
+import { NodesStore } from '@easy-diagram/states/nodesStore'
+import { INodeExport, INodeState } from '@easy-diagram/states/nodeState'
+import { PortsSettings, IPortsSettings } from '@easy-diagram/states/portsSettings'
+import { SelectionState } from '@easy-diagram/states/selectionState'
+import { DragState } from '@easy-diagram/states/dragState'
+import { CommandExecutor } from '@easy-diagram/states/commandExecutor'
+import { IDiagramInitState } from '@easy-diagram/components/DiagramContext'
+
+export class RootStore {
+  private _diagramState: DiagramState
+
+  private _nodesStore: NodesStore
+  private _linksStore: LinksStore
+  private _selectionState: SelectionState
+  private _dragState: DragState
+  private _commandExecutor: CommandExecutor
+
+  private _diagramSettings: DiagramSettings
+  private _nodesSettings: NodesSettings
+  private _portsSettings: PortsSettings
+  private _linksSettings: LinksSettings
+  private _callbacks: Callbacks
+
+  constructor(settings?: ISettings, state?: IDiagramInitState) {
+    this._diagramSettings = new DiagramSettings()
+    this._nodesSettings = new NodesSettings()
+    this._linksSettings = new LinksSettings()
+    this._portsSettings = new PortsSettings()
+    this._callbacks = new Callbacks(this)
+
+    this._diagramState = new DiagramState(this)
+
+    this._commandExecutor = new CommandExecutor(this)
+    this._nodesStore = new NodesStore(this)
+    this._linksStore = new LinksStore(this)
+    this._selectionState = new SelectionState()
+    this._dragState = new DragState(this._selectionState, this._callbacks)
+
+    this.importSettings(settings)
+    if (state) {
+      this.importState(state.nodes, state.links)
+    }
+  }
+
+  get diagramState() {
+    return this._diagramState
+  }
+
+  get nodesStore() {
+    return this._nodesStore
+  }
+
+  get linksStore() {
+    return this._linksStore
+  }
+
+  get diagramSettings() {
+    return this._diagramSettings
+  }
+
+  get nodesSettings() {
+    return this._nodesSettings
+  }
+
+  get linksSettings() {
+    return this._linksSettings
+  }
+
+  get portsSettings() {
+    return this._portsSettings
+  }
+
+  get callbacks() {
+    return this._callbacks
+  }
+
+  get selectionState() {
+    return this._selectionState
+  }
+
+  get dragState() {
+    return this._dragState
+  }
+
+  get commandExecutor() {
+    return this._commandExecutor
+  }
+
+  importState = (nodes?: INodeState[], links?: ILinkState[]) => {
+    this._diagramState.incrementImportGenerationId()
+    this._nodesStore.import(nodes)
+    this._linksStore.import(links)
+  }
+
+  export = (): { nodes: INodeExport[]; links: ILinkState[] } => ({
+    nodes: this._nodesStore.export(),
+    links: this._linksStore.export()
+  })
+
+  importSettings = (settings?: ISettings) => {
+    this._diagramSettings.import(settings?.diagram)
+    this._nodesSettings.import(settings?.nodes)
+    this._linksSettings.import(settings?.links)
+    this._portsSettings.import(settings?.ports)
+    this._callbacks.import(settings?.callbacks)
+  }
+}
+
+export interface ISettings {
+  diagram?: IDiagramSettings
+  nodes?: INodesSettings
+  links?: ILinksSettings
+  ports?: IPortsSettings
+  callbacks?: ICallbacks
+}

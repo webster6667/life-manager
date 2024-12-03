@@ -1,14 +1,20 @@
 import { FC, useState } from 'react'
 
 import { NodeModel } from '@projectstorm/react-diagrams-core'
-import { DiagramEngine, PortModelAlignment, PortWidget } from '@projectstorm/react-diagrams'
+import {
+  DefaultLinkModel,
+  DiagramEngine,
+  DiagramModel,
+  PointModel
+} from '@projectstorm/react-diagrams'
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core'
 import { fileSystemAdapter } from '@renderer/api/fileSystemAdapter'
 import { useDidMount } from '@common-hook'
 import { SecondaryNodeModel } from '@renderer/pages/paint/components/secondary-node'
-import { PrimaryPortModel } from '@renderer/pages/paint/components/primary-node/primary-port'
-import { Port } from '@renderer/pages/paint/components/secondary-node/styles'
 import { SecondaryPortModel } from '@renderer/pages/paint/components/secondary-node/secondary-port'
+import { isEmpty } from 'lodash'
+import styled from '@emotion/styled'
+import { css } from '@emotion/react'
 
 type PortAlignment = 'top' | 'left' | 'bottom' | 'right'
 
@@ -84,6 +90,56 @@ type canvasData = {
   locked: boolean
 }
 
+function createDiagramModelFromJSON(jsonData) {
+  const model = new DiagramModel()
+
+  Object.values(jsonData.models).forEach((linkData) => {
+    console.log(linkData)
+
+    const link = new DefaultLinkModel({
+      id: linkData.id,
+      color: linkData.color || 'gray',
+      width: linkData.width || 2
+    })
+
+    // // Добавляем точки в линк
+    linkData.points.forEach((point) => {
+      const pointModel = new PointModel({ link }) // Передаем ссылку на линк
+      pointModel.setPosition(point.x, point.y) // Устанавливаем координаты
+
+      link.addPoint(pointModel)
+    })
+    //
+    // // Добавляем линки в модель диаграммы
+    model.addLink(link)
+  })
+
+  return model.getLayers()[0]
+}
+
+namespace S {
+  const shared = css`
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    pointer-events: none;
+    transform-origin: 0 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  `
+
+  export const DivLayer = styled.div`
+    ${shared}
+  `
+
+  export const SvgLayer = styled.svg`
+    ${shared}
+  `
+}
+
 export const ContainerNodeWidget: FC<ContainerNodeWidgetProps> = ({ node, engine }) => {
   // const diagramModel = engine.getModel()
   // const test = diagramModel.getNodes()
@@ -91,15 +147,17 @@ export const ContainerNodeWidget: FC<ContainerNodeWidgetProps> = ({ node, engine
   // console.log(test, 'tes')
 
   const [nodes, setNodes] = useState([])
+  const [linkModel, setLinkModel] = useState()
 
   useDidMount(async () => {
     const fileData = (await fileSystemAdapter
       .readFile(node.portalFilePath)
       .then((res) => JSON.parse(res))) as canvasData
-    const links = fileData.layers[0].models
+    const links = fileData.layers[0]
     const nodes = fileData.layers[1].models
 
-    console.log(nodes, 'ports')
+    const lnkModel = createDiagramModelFromJSON(links)
+
     // {
     //   "id": "b7d9cf1c-5d2e-4b52-829f-478a1ecb7c42",
     //   "type": "diamond",
@@ -123,6 +181,7 @@ export const ContainerNodeWidget: FC<ContainerNodeWidgetProps> = ({ node, engine
     })
 
     setNodes(Object.values(nodes))
+    setLinkModel(lnkModel)
   })
 
   return (
@@ -132,7 +191,11 @@ export const ContainerNodeWidget: FC<ContainerNodeWidgetProps> = ({ node, engine
         className="nested-nodes"
         style={{ position: 'relative', width: '800px', height: '800px' }}
       >
-        {/*{engine.getNodeFactories().getFactory(n.getType())}*/}
+        {/*{!isEmpty(linkModel) && (*/}
+        {/*  <S.SvgLayer>*/}
+        {/*    {engine.getFactoryForLayer('diagram-links').generateReactWidget({ model: linkModel })}*/}
+        {/*  </S.SvgLayer>*/}
+        {/*)}*/}
 
         {nodes.length &&
           nodes.map(({ id, x, y, ports }: NodeProps, index) => {
