@@ -30,7 +30,13 @@ const NodeDefault: React.FC<INodeVisualComponentProps<INodeDefaultSettings>> = o
     const styling = useStyling(stylingOptions, state)
 
     return (
-      <div className={styling.className} style={styling.style}>
+      <div
+        className={styling.className}
+        style={styling.style}
+        onMouseDown={(e) => {
+          e.stopPropagation()
+        }}
+      >
         {settings?.innerNode && <settings.innerNode node={entity} />}
 
         {Array.isArray(settings?.ports) &&

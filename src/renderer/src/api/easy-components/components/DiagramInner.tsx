@@ -16,6 +16,9 @@ export interface IDiagramInnerProps {
 }
 
 export const DigramInner = observer<IDiagramInnerProps>((props) => {
+  const [selectionBox, setSelectionBox] = useState(null)
+  const startCoords = useRef({ x: 0, y: 0 })
+
   const rootStore = useRootStore()
   useDiagramUserInteraction()
 
@@ -75,16 +78,61 @@ export const DigramInner = observer<IDiagramInnerProps>((props) => {
         type: 'star'
       })
     )
+  }
 
-    // storeRef.current.commandExecutor.execute(
-    //   addNodeCommand({
-    //     id: newNodeId,
-    //     position: [adjustedX, adjustedY],
-    //     type: 'star'
-    //   })
-    // )
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect()
 
-    // console.log(`Double click at: X: ${x}, Y: ${y}`)
+    startCoords.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
+    setSelectionBox({ x: e.clientX, y: e.clientY, width: 0, height: 0 })
+
+    rootStore.selectionState.unselectAll()
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+
+    if (!selectionBox) return
+
+    const currentX = e.clientX - rect.left
+    const currentY = e.clientY - rect.top
+
+    const width = e.clientX - startCoords.current.x - rect.left
+    const height = e.clientY - startCoords.current.y - rect.top
+
+    setSelectionBox({
+      x: width < 0 ? currentX : startCoords.current.x,
+      y: height < 0 ? currentY : startCoords.current.y,
+      width: Math.abs(width),
+      height: Math.abs(height)
+    })
+  }
+
+  const handleMouseUp = () => {
+    if (!selectionBox) return
+
+    const selectedNodes = rootStore.nodesStore.export().filter((node) => {
+      const nodeX = node.position[0]
+      const nodeY = node.position[1]
+      const selectionBoxX = (selectionBox.x - offset[0]) / zoom
+      const selectionBoxY = (selectionBox.y - offset[1]) / zoom
+
+      // console.log(selectionBoxY, 'selectionBoxY')
+
+      return (
+        nodeX >= selectionBoxX &&
+        nodeY >= selectionBoxY &&
+        nodeX <= selectionBoxX + selectionBox.width &&
+        nodeY <= selectionBoxY + selectionBox.height
+      )
+    })
+
+    for (const { id } of Object.values(selectedNodes)) {
+      const nodeForSelect = rootStore.nodesStore.getNode(id)
+      rootStore.selectionState.select(nodeForSelect, false)
+    }
+
+    setSelectionBox(null) // Сбрасываем выделение
   }
 
   return (
@@ -94,7 +142,25 @@ export const DigramInner = observer<IDiagramInnerProps>((props) => {
       data-zoom={zoom}
       className={className}
       onDoubleClick={handleDoubleClick}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
     >
+      {selectionBox && (
+        <div
+          style={{
+            position: 'absolute',
+            left: selectionBox.x,
+            top: selectionBox.y,
+            width: Math.abs(selectionBox.width),
+            height: Math.abs(selectionBox.height),
+            backgroundColor: 'rgba(0, 120, 215, 0.2)',
+            border: '1px solid rgba(0, 120, 215, 0.5)',
+            pointerEvents: 'none'
+          }}
+        />
+      )}
+
       <BackgroundWrapper />
       <LinksLayer transform={transform} />
       <NodesLayer transform={transform} />
