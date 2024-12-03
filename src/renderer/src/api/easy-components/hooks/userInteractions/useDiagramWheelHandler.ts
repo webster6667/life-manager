@@ -12,22 +12,30 @@ export function useDiagramWheelHandler(state: IUserInteractionTranslateAndZoom):
 
   const handlers = useMemo<IWheelHandler>(
     () => ({
-      onWheel: ({ direction: [_, yDirection], event }) => {
-        if (!diagramState.ref.current || !diagramSettings.userInteraction.diagramZoom) return
-        event?.preventDefault()
-        const rect = diagramState.ref.current.getBoundingClientRect()
+      onWheel: ({ direction: [_, yDirection], event, ctrlKey }) => {
+        if (!ctrlKey) {
+          const yDelta = -event.deltaY
+          const xDelta = -event.deltaX
+          diagramState.translate([xDelta, yDelta])
+        } else {
+          if (!diagramState.ref.current || !diagramSettings.userInteraction.diagramZoom || !ctrlKey)
+            return
+          event?.preventDefault()
+          const rect = diagramState.ref.current.getBoundingClientRect()
 
-        const mousePositionOnElement = subtractPoints(
-          [event.clientX, event.clientY],
-          [rect.left, rect.top]
-        )
+          const mousePositionOnElement = subtractPoints(
+            [event.clientX, event.clientY],
+            [rect.left, rect.top]
+          )
 
-        let factor = 0.9
-        if (yDirection < 0) {
-          factor = 1 / factor
+          let factor = 0.9
+
+          if (yDirection < 0) {
+            factor = 1 / factor
+          }
+
+          state.translateAndZoomInto([0, 0], mousePositionOnElement, factor)
         }
-
-        state.translateAndZoomInto([0, 0], mousePositionOnElement, factor)
       }
     }),
     [diagramState.ref, state, diagramSettings]

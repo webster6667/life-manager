@@ -19,7 +19,6 @@ export const useDiagramUserInteraction = () => {
 
   useGesture(
     {
-      ...dragHandlers,
       ...pinchHandlers,
       ...wheelHandler
     },
