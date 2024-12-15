@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { PrimaryNodeModel } from '@renderer/pages/paint/components/primary-node'
+import { useRootStore } from '@renderer/api/easy-components'
 
 export const useResizeShape = (node: PrimaryNodeModel) => {
   const { width = 300, height = 200 } = JSON.parse(JSON.stringify(node.data || '')) || {}
+  const rootStore = useRootStore()
+  const zoom = rootStore.diagramState.zoom
 
   const [isResizing, setIsResizing] = useState(false)
   const [startX, setStartX] = useState(0)
@@ -25,8 +28,8 @@ export const useResizeShape = (node: PrimaryNodeModel) => {
       if (isResizing) {
         const deltaX = e.clientX - startX
         const deltaY = e.clientY - startY
-        const newWidth = Math.max(50, originalWidth + deltaX)
-        const newHeight = Math.max(50, originalHeight + deltaY)
+        const newWidth = Math.max(50, originalWidth + deltaX / zoom)
+        const newHeight = Math.max(50, originalHeight + deltaY / zoom)
 
         node.data.width = newWidth
         node.data.height = newHeight

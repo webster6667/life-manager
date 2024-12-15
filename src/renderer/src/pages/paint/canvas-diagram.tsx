@@ -1,13 +1,4 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
-// import {
-//   Diagram,
-//   DISABLE_NODE_USER_INTERACTION_CLASS,
-//   INodeVisualComponentProps,
-//   Port,
-//   RootStore,
-//   addNodeCommand,
-//   useDiagram
-// } from 'react-easy-diagram'
 import { observer } from 'mobx-react-lite'
 
 import {
@@ -22,7 +13,7 @@ import {
 import { debounce } from 'lodash'
 import { fileSystemAdapter } from '@renderer/api/fileSystemAdapter'
 import { useDidMount } from '@common-hook'
-import { Box } from '@mui/material'
+import { StarNode } from '@renderer/pages/paint/components/star-node/star-node'
 
 const NodeWithExternalData = observer<INodeVisualComponentProps>(({ entity }) => {
   const [linesNumber, setLinesNumber] = useState<number>(0)
@@ -67,41 +58,6 @@ const NodeWithExternalData = observer<INodeVisualComponentProps>(({ entity }) =>
   )
 })
 
-const NodeWithInternalData = observer<INodeVisualComponentProps>(({ entity: node }) => {
-  const linesNumber = node.data ?? 0
-
-  const lines = useLines(linesNumber)
-
-  return (
-    <div
-      className="react_fast_diagram_NodeDefault"
-      style={{
-        padding: 15,
-        border: node.selected ? '#6eb7ff solid 1px' : ''
-      }}
-    >
-      <div>Node with internal state that cause node resize</div>
-      <div>Fields:</div>
-
-      {lines.map((l) => l)}
-
-      <div>
-        <button
-          className={DISABLE_NODE_USER_INTERACTION_CLASS}
-          type="button"
-          onClick={() => node.setData(linesNumber + 1)}
-        >
-          Add line
-        </button>
-      </div>
-
-      {Array.from(node.ports).map(([id]) => (
-        <Port id={id} key={id} />
-      ))}
-    </div>
-  )
-})
-
 function useLines(count: number) {
   const lines = []
   for (let i = 0; i < count; i++) {
@@ -110,8 +66,15 @@ function useLines(count: number) {
   return lines
 }
 
-const listener = (rootStore, selectedFilePath) => {
-  fileSystemAdapter.updateFile(selectedFilePath, JSON.stringify(rootStore.export()))
+const listener = (rootStore: RootStore, selectedFilePath) => {
+  fileSystemAdapter.updateFile(
+    selectedFilePath,
+    JSON.stringify({
+      ...rootStore.export(),
+      zoom: rootStore.diagramState.zoom,
+      offset: rootStore.diagramState.offset
+    })
+  )
 }
 
 // Создаем debounced-функцию, которая будет вызываться только после 300 мс тишины
@@ -123,6 +86,12 @@ const listenersConfig = (selectedFilePath) => {
   return {
     onNodePositionChanged: (_, rootStore) => {
       isReady && debouncedListener(rootStore, selectedFilePath)
+    },
+    onChangeOffset: (rootStore) => {
+      isReady && listener(rootStore, selectedFilePath)
+    },
+    onChangeZoom: (rootStore) => {
+      isReady && listener(rootStore, selectedFilePath)
     },
     onNodesAddResult: (_, rootStore) => {
       isReady && listener(rootStore, selectedFilePath)
@@ -152,60 +121,19 @@ export const CanvasDiagram: FC<{ selectedFilePath: string }> = ({ selectedFilePa
     return JSON.parse(data)
   })
 
-  // useEffect(() => {
-  //   console.log(storeRef.current, 'test')
-  // }, [storeRef.current])
-
   if (!isInitDataReady) {
     return <div>process</div>
   }
 
-  const handleDragOver = (event: React.DragEvent) => {
-    event.preventDefault() // Разрешаем сброс
-  }
-
-  const handleDrop = async (event: React.DragEvent) => {
-    event.preventDefault()
-  }
-
-  const dbcHandler = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    const data = storeRef.current.diagramState.offset
-
-    const rect = event.currentTarget.getBoundingClientRect() // Получаем границы диаграммы
-    // const clickX = event.clientX - rect.left
-    // const clickY = event.clientY - rect.top
-    //
-    // const newNodeId = `node${Math.random().toString(36).substring(2, 7)}`
-    // const { scale, translateX, translateY } = storeRef.current.diagramState || {}
-    //
-    // // Корректируем координаты с учетом трансформации
-    // const adjustedX = (clickX - translateX) / scale
-    // const adjustedY = (clickY - translateY) / scale
-    //
-    // storeRef.current.commandExecutor.execute(
-    //   addNodeCommand({
-    //     id: newNodeId,
-    //     position: [adjustedX, adjustedY],
-    //     type: 'star'
-    //   })
-    // )
-  }
-
   return (
-    // <Box
-    //   style={{ width: '100%' }}
-    //   onDoubleClick={dbcHandler}
-    //   onDragOver={handleDragOver}
-    //   onDrop={handleDrop}
-    // >
     <Diagram
       storeRef={storeRef}
       initState={initData}
       settings={{
         nodes: {
           components: {
-            output_horizontal: {
-              component: NodeWithInternalData,
+            star: {
+              component: StarNode,
               settings: {
                 ports: [
                   { id: 'left', position: 'left-center' },
@@ -231,6 +159,5 @@ export const CanvasDiagram: FC<{ selectedFilePath: string }> = ({ selectedFilePa
         callbacks: listenersConfig(selectedFilePath)
       }}
     />
-    // </Box>
   )
 }

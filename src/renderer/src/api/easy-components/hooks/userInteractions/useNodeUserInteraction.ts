@@ -5,7 +5,7 @@ import {
 } from '@easy-diagram/hooks/userInteractions/common'
 import { useCursor, useDiagramCursor } from '@easy-diagram/hooks/userInteractions/useCursor'
 import { useRootStore } from '@easy-diagram/hooks/useRootStore'
-import React, { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { useGesture } from '@use-gesture/react'
 import { NodeState } from '@easy-diagram/states/nodeState'
 import { multiplyPoint } from '@easy-diagram/utils/point'
@@ -34,7 +34,13 @@ export const useNodeUserInteraction = (nodeState: NodeState) => {
         nodeState.hovered = false
       },
       onClick: () => {}, // Prevent from double tap zooming on IOS
-      onDrag: ({ pinching, delta, movement, cancel }) => {
+      onDrag: ({ pinching, delta, movement, cancel, target }) => {
+        const targetElement = target as HTMLElement
+
+        if (targetElement.dataset.element === 'resizer') {
+          return
+        }
+
         if (!interactionActiveRef.current || pinching || canDragGestureBeTapInstead(movement)) {
           return
         }

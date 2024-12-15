@@ -4,6 +4,7 @@ import type { ILinkState } from '@easy-diagram/states/linkState'
 import type { INodeState } from '@easy-diagram/states/nodeState'
 import type { ISettings } from '@easy-diagram/states/rootStore'
 import { RootStore } from '@easy-diagram/states/rootStore'
+import { IDiagramState } from '@renderer/api/easy-components'
 
 export const RootStoreContext = React.createContext<RootStore | null>(null)
 
@@ -20,6 +21,7 @@ export const DiagramContext = observer((props: IDiagramContextProps) => {
   }, [rootStore, props.settings, initialSettings])
 
   useEffect(() => {
+    rootStore.diagramState.import(initialState)
     if (initialState !== props.initState) {
       rootStore.importState(props.initState?.nodes ?? [], props.initState?.links ?? [])
     }
@@ -40,7 +42,7 @@ export type IDiagramContextProps = React.PropsWithChildren<{
   storeRef?: React.MutableRefObject<RootStore | null>
 }>
 
-export interface IDiagramInitState {
+export interface IDiagramInitState extends IDiagramState {
   nodes?: INodeState[]
   links?: ILinkState[]
 }

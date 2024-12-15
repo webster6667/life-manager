@@ -7,6 +7,7 @@ import { HtmlElementRefState } from '@easy-diagram/states/htmlElementRefState'
 import { RootStore } from '@easy-diagram/states/rootStore'
 import { BoundingBox, clampValue, deepCopy } from '@easy-diagram/utils/common'
 import { addPoints, multiplyPoint, Point, subtractPoints } from '@easy-diagram/utils/point'
+import { IDiagramInitState } from '@renderer/api/easy-components'
 
 export class DiagramState implements IUserInteractionTranslate, IUserInteractionTranslateAndZoom {
   private _offset: Point

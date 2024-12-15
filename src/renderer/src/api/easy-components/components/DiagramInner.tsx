@@ -8,7 +8,9 @@ import { BackgroundWrapper } from '@easy-diagram/components/background/Backgroun
 import { MiniControlWrapper } from '@easy-diagram/components/miniControl/MiniControlWrapper'
 import { generateTransform } from '@easy-diagram/utils/transformation'
 import '../Diagram.css'
-import { addNodeCommand } from '@renderer/api/easy-components'
+import { addNodeCommand, RootStore } from '@renderer/api/easy-components'
+import { fileSystemAdapter } from '@renderer/api/fileSystemAdapter'
+import { debounce } from 'lodash'
 
 export interface IDiagramInnerProps {
   diagramStyles?: React.CSSProperties
@@ -37,6 +39,8 @@ export const DigramInner = observer<IDiagramInnerProps>((props) => {
       offset: rootStore.diagramState.offset,
       zoom: rootStore.diagramState.zoom
     })
+    rootStore.callbacks.changeOffset()
+    rootStore.callbacks.changeZoom()
   }, [rootStore.diagramState.offset, rootStore.diagramState.zoom])
 
   const lastRenderedImportRef = useRef(-1)
@@ -75,18 +79,26 @@ export const DigramInner = observer<IDiagramInnerProps>((props) => {
       addNodeCommand({
         id: newNodeId,
         position: [x, y],
-        type: 'star'
+        type: 'star',
+        data: {
+          width: 300,
+          height: 100,
+          shape: 'square'
+        }
       })
     )
   }
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
+    const targetElement = e.target as HTMLElement
 
     startCoords.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
     setSelectionBox({ x: e.clientX, y: e.clientY, width: 0, height: 0 })
 
-    rootStore.selectionState.unselectAll()
+    if (targetElement.dataset.element === 'canvas') {
+      rootStore.selectionState.unselectAll()
+    }
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -109,30 +121,28 @@ export const DigramInner = observer<IDiagramInnerProps>((props) => {
   }
 
   const handleMouseUp = () => {
-    if (!selectionBox) return
+    if (selectionBox) {
+      const selectedNodes = rootStore.nodesStore.export().filter((node) => {
+        const nodeX = node.position[0]
+        const nodeY = node.position[1]
+        const selectionBoxX = (selectionBox.x - offset[0]) / zoom
+        const selectionBoxY = (selectionBox.y - offset[1]) / zoom
 
-    const selectedNodes = rootStore.nodesStore.export().filter((node) => {
-      const nodeX = node.position[0]
-      const nodeY = node.position[1]
-      const selectionBoxX = (selectionBox.x - offset[0]) / zoom
-      const selectionBoxY = (selectionBox.y - offset[1]) / zoom
+        return (
+          nodeX >= selectionBoxX &&
+          nodeY >= selectionBoxY &&
+          nodeX <= selectionBoxX + selectionBox.width / zoom &&
+          nodeY <= selectionBoxY + selectionBox.height / zoom
+        )
+      })
 
-      // console.log(selectionBoxY, 'selectionBoxY')
+      for (const { id } of Object.values(selectedNodes)) {
+        const nodeForSelect = rootStore.nodesStore.getNode(id)
+        rootStore.selectionState.select(nodeForSelect, false)
+      }
 
-      return (
-        nodeX >= selectionBoxX &&
-        nodeY >= selectionBoxY &&
-        nodeX <= selectionBoxX + selectionBox.width &&
-        nodeY <= selectionBoxY + selectionBox.height
-      )
-    })
-
-    for (const { id } of Object.values(selectedNodes)) {
-      const nodeForSelect = rootStore.nodesStore.getNode(id)
-      rootStore.selectionState.select(nodeForSelect, false)
+      setSelectionBox(null) // Сбрасываем выделение
     }
-
-    setSelectionBox(null) // Сбрасываем выделение
   }
 
   return (
@@ -140,6 +150,7 @@ export const DigramInner = observer<IDiagramInnerProps>((props) => {
       ref={rootStore.diagramState.ref}
       style={props.diagramStyles}
       data-zoom={zoom}
+      data-element="canvas"
       className={className}
       onDoubleClick={handleDoubleClick}
       onMouseDown={handleMouseDown}

@@ -23,6 +23,8 @@ export class Callbacks {
   private _onLinksRemoveResult?: ICallbacks['onLinksRemoveResult']
   private _onLinkingStarted?: ICallbacks['onLinkingStarted']
   private _onLinkingEnded?: ICallbacks['onLinkingEnded']
+  private _onChangeOffset?: ICallbacks['onChangeOffset']
+  private _onChangeZoom?: ICallbacks['onChangeZoom']
 
   private _rootStore: RootStore
 
@@ -49,6 +51,8 @@ export class Callbacks {
     this._onLinksRemoveResult = callbacks?.onLinksRemoveResult
     this._onLinkingStarted = callbacks?.onLinkingStarted
     this._onLinkingEnded = callbacks?.onLinkingEnded
+    this._onChangeOffset = callbacks?.onChangeOffset
+    this._onChangeZoom = callbacks?.onChangeZoom
   }
 
   export = (): ICallbacks => ({
@@ -193,6 +197,18 @@ export class Callbacks {
     }
   }
 
+  changeOffset = () => {
+    if (this._onChangeOffset) {
+      this._onChangeOffset(this._rootStore)
+    }
+  }
+
+  changeZoom = () => {
+    if (this._onChangeZoom) {
+      this._onChangeZoom(this._rootStore)
+    }
+  }
+
   importedStateRendered = () => {
     if (this._rootStore.diagramSettings.zoomToFitSettings.callOnImportState) {
       this._rootStore.diagramState.zoomToFit()
@@ -255,6 +271,8 @@ export interface ICallbacks {
   onLinksRemoveResult?: (info: OnLinksRemoveResult, rootStore: RootStore) => void
   onLinkingStarted?: (info: OnLinkingStarted, rootStore: RootStore) => void
   onLinkingEnded?: (info: OnLinkingEnded, rootStore: RootStore) => void
+  onChangeOffset?: (rootStore: RootStore) => void
+  onChangeZoom?: (rootStore: RootStore) => void
 }
 
 export interface OnDragStarted {
