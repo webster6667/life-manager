@@ -11,7 +11,7 @@ export const RootStoreContext = React.createContext<RootStore | null>(null)
 export const DiagramContext = observer((props: IDiagramContextProps) => {
   const [rootStore, initialSettings, initialState] = useMemo(
     () => [new RootStore(props.settings, props.initState), props.settings, props.initState],
-    []
+    [props.initState]
   )
 
   useEffect(() => {

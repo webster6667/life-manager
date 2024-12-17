@@ -3,7 +3,7 @@ import { PrimaryNodeModel } from '@renderer/pages/paint/components/primary-node'
 import { useRootStore } from '@renderer/api/easy-components'
 
 export const useResizeShape = (node: PrimaryNodeModel) => {
-  const { width = 300, height = 200 } = JSON.parse(JSON.stringify(node.data || '')) || {}
+  const { width = 300, height = 200 } = JSON.parse(JSON.stringify(node?.data || '')) || {}
   const rootStore = useRootStore()
   const zoom = rootStore.diagramState.zoom
 

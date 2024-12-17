@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite'
-import { INodeVisualComponentProps, Port, useRootStore } from '@renderer/api/easy-components'
+import { INodeVisualComponentProps, Port } from '@renderer/api/easy-components'
 import React from 'react'
 import { useResizeShape } from '@renderer/pages/paint/hooks/useResizeShape'
 import { ResizeHandle } from '@renderer/pages/paint/components/primary-node/styles'

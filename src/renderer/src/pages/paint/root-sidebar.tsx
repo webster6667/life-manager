@@ -108,7 +108,11 @@ const FileTree: FC<FileTreeProps> = ({
             if (node.isDirectory) {
               handleToggle(node.path)
             } else {
-              setSelectedFile(node.path)
+              // TODO: Поправить странный костыль с не отрабатывающим onImportedStateRendered
+              setSelectedFile('')
+              setTimeout(() => {
+                setSelectedFile(node.path)
+              }, 10)
             }
           }}
         >

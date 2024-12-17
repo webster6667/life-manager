@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react'
 
-export const useDidMount = <T>(callback?: () => Promise<T> | T, onError?: (e: any) => void) => {
+export const useDidMount = <T>(
+  callback?: () => Promise<T> | T,
+  deps?: any[],
+  onError?: (e: any) => void
+) => {
   const [wasMountedCallbackFinished, setWasMountedCallbackFinished] = useState(false)
   const [dataReturnAfterMount, setDataReturnAfterMount] = useState<T | undefined>(undefined)
 
@@ -18,7 +22,7 @@ export const useDidMount = <T>(callback?: () => Promise<T> | T, onError?: (e: an
         setWasMountedCallbackFinished(true)
       }
     })()
-  }, [])
+  }, deps || [])
 
   return [wasMountedCallbackFinished, dataReturnAfterMount]
 }

@@ -4,10 +4,10 @@ import React from 'react'
 
 export type IDiagramProps = IDiagramInnerProps & IDiagramContextProps
 
-export function Diagram(props: IDiagramProps) {
+export function Diagram({ initState, settings, storeRef, children, ...props }: IDiagramProps) {
   return (
-    <DiagramContext initState={props.initState} settings={props.settings} storeRef={props.storeRef}>
-      <DigramInner children={props.children} />
+    <DiagramContext initState={initState} settings={settings} storeRef={storeRef}>
+      <DigramInner children={children} {...props} />
     </DiagramContext>
   )
 }

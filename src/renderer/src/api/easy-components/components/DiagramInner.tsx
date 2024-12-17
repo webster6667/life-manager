@@ -1,4 +1,11 @@
-import React, { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, {
+  HTMLAttributes,
+  ReactNode,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState
+} from 'react'
 import { LinksLayer } from '@easy-diagram/components/link/LinksLayer'
 import { NodesLayer } from '@easy-diagram/components/node/NodesLayer'
 import { useDiagramUserInteraction } from '@easy-diagram/hooks/userInteractions/useDiagramUserInteraction'
@@ -8,11 +15,9 @@ import { BackgroundWrapper } from '@easy-diagram/components/background/Backgroun
 import { MiniControlWrapper } from '@easy-diagram/components/miniControl/MiniControlWrapper'
 import { generateTransform } from '@easy-diagram/utils/transformation'
 import '../Diagram.css'
-import { addNodeCommand, RootStore } from '@renderer/api/easy-components'
-import { fileSystemAdapter } from '@renderer/api/fileSystemAdapter'
-import { debounce } from 'lodash'
+import { addNodeCommand } from '@renderer/api/easy-components'
 
-export interface IDiagramInnerProps {
+export interface IDiagramInnerProps extends HTMLAttributes<HTMLDivElement> {
   diagramStyles?: React.CSSProperties
   children?: ReactNode | undefined
 }
@@ -156,6 +161,9 @@ export const DigramInner = observer<IDiagramInnerProps>((props) => {
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onDrop={props.onDrop}
+      onDragOver={props.onDragOver}
+      onClick={props.onClick}
     >
       {selectionBox && (
         <div

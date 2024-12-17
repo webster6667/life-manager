@@ -31,14 +31,14 @@ export const LinkDefault: React.FC<ILinkVisualComponentProps<ILinkDefaultSetting
     )
 
     let state = 'base'
-    if (entity.selected && entity.hovered) state = 'selected-hovered'
-    else if (entity.selected) state = 'selected'
-    else if (entity.hovered) state = 'hovered'
+    if (entity?.selected && entity?.hovered) state = 'selected-hovered'
+    else if (entity?.selected) state = 'selected'
+    else if (entity?.hovered) state = 'hovered'
 
     const mainStyling = useStyling(mainStylingOptions, state)
     const secondaryStyling = useStyling(secondaryStylingOptions, state)
 
-    if (!entity.path) return null
+    if (!entity?.path) return null
 
     return (
       <g>

@@ -1,72 +1,19 @@
-import React, { FC, useEffect, useRef, useState } from 'react'
-import { observer } from 'mobx-react-lite'
+import React, { FC, useRef } from 'react'
 
-import {
-  Diagram,
-  DISABLE_NODE_USER_INTERACTION_CLASS,
-  INodeVisualComponentProps,
-  Port,
-  RootStore,
-  useDiagram
-} from '@easy-diagram/index'
+import { addNodeCommand, Diagram, IDiagramInitState, RootStore } from '@easy-diagram/index'
 
 import { debounce } from 'lodash'
 import { fileSystemAdapter } from '@renderer/api/fileSystemAdapter'
 import { useDidMount } from '@common-hook'
 import { StarNode } from '@renderer/pages/paint/components/star-node/star-node'
-
-const NodeWithExternalData = observer<INodeVisualComponentProps>(({ entity }) => {
-  const [linesNumber, setLinesNumber] = useState<number>(0)
-
-  useEffect(() => {
-    // Size and position changes in DOM element are not reported to the library, so it is
-    // required to trigger recalculation if you think size or position is changed. There is also
-    // possibility to store your data that could change size or position in port's or node's "data" property,
-    // changes in these properties along with the other are already handled by library.
-    entity.recalculatePortsOffset()
-  }, [linesNumber])
-
-  const lines = useLines(linesNumber)
-
-  return (
-    <div
-      className="react_fast_diagram_NodeDefault"
-      style={{
-        padding: 15,
-        border: entity.selected ? '#6eb7ff solid 1px' : ''
-      }}
-    >
-      <div>Node with external state that cause node resize</div>
-      <div>Fields:</div>
-
-      {lines.map((l) => l)}
-
-      <div>
-        <button
-          className={DISABLE_NODE_USER_INTERACTION_CLASS}
-          type="button"
-          onClick={() => setLinesNumber((c) => c + 1)}
-        >
-          Add line
-        </button>
-      </div>
-
-      {Array.from(entity.ports).map(([id]) => (
-        <Port id={id} key={id} />
-      ))}
-    </div>
-  )
-})
-
-function useLines(count: number) {
-  const lines = []
-  for (let i = 0; i < count; i++) {
-    lines.push(<span key={i}>Line {i}</span>)
-  }
-  return lines
-}
+import { PortalNode } from '@renderer/pages/paint/components/portal-node/portal-node'
+import { IPortState } from 'react-easy-diagram'
 
 const listener = (rootStore: RootStore, selectedFilePath) => {
+  // console.log({ ...rootStore.linksStore.links }, 'links')
+
+  // console.log(Array.from(rootStore.linksStore.links)[0][1].path, 'test')
+
   fileSystemAdapter.updateFile(
     selectedFilePath,
     JSON.stringify({
@@ -113,7 +60,61 @@ const listenersConfig = (selectedFilePath) => {
 
 export const CanvasDiagram: FC<{ selectedFilePath: string }> = ({ selectedFilePath }) => {
   const storeRef = useRef<RootStore>(null)
-  const { commandExecutor } = useDiagram()
+
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault() // Разрешаем сброс
+  }
+
+  const handleDrop = async (event: React.DragEvent) => {
+    event.preventDefault()
+    const { clientX, clientY, currentTarget } = event
+    const rect = currentTarget.getBoundingClientRect()
+    const { zoom, offset } = storeRef.current.diagramState
+
+    // Координаты клика относительно контейнера
+    const x = (clientX - rect.left - offset[0]) / zoom
+    const y = (clientY - rect.top - offset[1]) / zoom
+    const newNodeId = `node${Math.random().toString(36).substring(2, 7)}`
+    const portalFilePath = event.dataTransfer.getData('text/plain')
+    const fileData = (await fileSystemAdapter
+      .readFile(portalFilePath)
+      .then((res) => JSON.parse(res))) as IDiagramInitState
+    const portalPorts: IPortState[] = []
+
+    fileData.nodes.forEach(({ ports, id: nodeId }) => {
+      ports.forEach(({ id: portId }) => {
+        portalPorts.push({ id: portId + '_' + nodeId, position: portId + '-center' })
+      })
+    })
+
+    console.log(fileData.links, 'test')
+
+    // fileData.links.map((link) => ({
+    //   ...link,
+    //   target: {
+    //     nodeId: newNodeId,
+    //     portId: `${link.target.portId}_${newNodeId}`
+    //   },
+    //   source: {
+    //     nodeId: newNodeId,
+    //     portId: `${link.source.portId}_${newNodeId}`
+    //   }
+    // }))
+
+    // storeRef.current.linksStore.addLinks(link)
+
+    storeRef.current.commandExecutor.execute(
+      addNodeCommand({
+        id: newNodeId,
+        position: [x, y],
+        type: 'portal',
+        data: {
+          portalFilePath: portalFilePath
+        },
+        ports: portalPorts
+      })
+    )
+  }
 
   const [isInitDataReady, initData] = useDidMount(async () => {
     const data = await fileSystemAdapter.readFile(selectedFilePath)
@@ -127,6 +128,14 @@ export const CanvasDiagram: FC<{ selectedFilePath: string }> = ({ selectedFilePa
 
   return (
     <Diagram
+      onClick={() => {
+        console.log(
+          { ...storeRef?.current.linksStore.getLink('8fc27326-f46d-08f3-3001-bef1110102ac') },
+          'cli'
+        )
+      }}
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
       storeRef={storeRef}
       initState={initData}
       settings={{
@@ -143,16 +152,8 @@ export const CanvasDiagram: FC<{ selectedFilePath: string }> = ({ selectedFilePa
                 ]
               }
             },
-            input_horizontal: {
-              component: NodeWithExternalData,
-              settings: {
-                ports: [
-                  { id: 'left', position: 'left-center' },
-                  { id: 'top', position: 'top-center' },
-                  { id: 'right', position: 'right-center' },
-                  { id: 'bottom', position: 'bottom-center' }
-                ]
-              }
+            portal: {
+              component: PortalNode
             }
           }
         },

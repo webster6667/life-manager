@@ -53,17 +53,20 @@ export class LinkState implements ILinkInteractionState {
     this.setIsSelectionEnabled(state?.isSelectionEnabled)
   }
 
-  export = (): ILinkStateWithId => ({
-    ...deepCopy({
-      id: this._id,
-      source: this._sourceEndpoint,
-      target: this._targetEndpoint,
-      type: this.type,
-      segments: this.segments,
-      data: this.data,
-      isSelectionEnabled: this._isSelectionEnabled ?? undefined
-    })
-  })
+  export = (): ILinkStateWithId => {
+    return {
+      ...deepCopy({
+        id: this._id,
+        source: this._sourceEndpoint,
+        target: this._targetEndpoint,
+        type: this.type,
+        segments: this.segments,
+        data: this.data,
+        isSelectionEnabled: this._isSelectionEnabled ?? undefined,
+        path: this.path
+      })
+    }
+  }
 
   get id() {
     return this._id
