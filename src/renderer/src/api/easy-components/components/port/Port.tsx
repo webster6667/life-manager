@@ -50,7 +50,7 @@ export const Port: React.FC<IPortProps> = observer((props) => {
     <div
       style={positionStyles}
       id={portState.fullId}
-      className={className}
+      className={className + ' port-wrapper'}
       ref={portState.ref}
       key={portState.fullId}
       {...bind()}

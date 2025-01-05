@@ -9,6 +9,7 @@ import { useCallback, useMemo, useRef } from 'react'
 import { useGesture } from '@use-gesture/react'
 import { NodeState } from '@easy-diagram/states/nodeState'
 import { multiplyPoint } from '@easy-diagram/utils/point'
+import { log } from 'console'
 
 export const useNodeUserInteraction = (nodeState: NodeState) => {
   const rootStore = useRootStore()
@@ -34,8 +35,12 @@ export const useNodeUserInteraction = (nodeState: NodeState) => {
         nodeState.hovered = false
       },
       onClick: () => {}, // Prevent from double tap zooming on IOS
-      onDrag: ({ pinching, delta, movement, cancel, target }) => {
+      onDrag: ({ pinching, delta, movement, cancel, target, type, ...rest }) => {
         const targetElement = target as HTMLElement
+
+        if (['keydown','keyup'].includes(type)) {
+          return
+        }
 
         if (targetElement.dataset.element === 'resizer') {
           return
@@ -66,7 +71,7 @@ export const useNodeUserInteraction = (nodeState: NodeState) => {
           return
         }
 
-        if (!nodeState.isDragActive) {
+        if (!nodeState.isDragActive) {          
           startedDragRef.current = rootStore.dragState.startDragging(nodeState)
         }
 

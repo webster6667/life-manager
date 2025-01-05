@@ -111,6 +111,7 @@ export const MarkdownEditor: FC<PropsWithChildren<MarkdownEditorProps>> = ({
             }
           }}
           i18nFormat={i18nFormat}
+          autoFocus={false}
         >
           <EditorComponent />
           {children}

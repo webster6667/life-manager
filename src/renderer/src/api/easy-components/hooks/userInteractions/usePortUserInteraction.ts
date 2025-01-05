@@ -40,6 +40,7 @@ export const usePortUserInteraction = (portState?: PortState): IUsePortUserInter
         if (!portState) return
         portState.dragging = false
         linkCreation.stopLinking()
+        linkCreation.setTargetPortCandidate(portState)
       },
       onPointerEnter: () => {
         if (!portState) return

@@ -33,7 +33,7 @@ export class SelectionState {
 
   switch = (item: SelectableItem, unselectOtherOnSelection: boolean = false) => {
     if (item.selected) {
-      this.unselect(item)
+      // this.unselect(item)
     } else {
       this.select(item, unselectOtherOnSelection)
     }

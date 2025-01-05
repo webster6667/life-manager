@@ -15,12 +15,13 @@ export const Port = styled.div`
 
 export const ResizeHandle = styled.div`
   position: absolute;
-  width: 10px;
-  height: 10px;
-  background-color: red;
+  width: 20px;
+  height: 20px;
+  background-color: transparent;
   bottom: 0;
   right: 0;
   cursor: nwse-resize;
+  z-index: 99;
 `
 
 export const DiamondContainer = styled.div`

@@ -36,16 +36,68 @@
   pointer-events: auto;
 }
 
+/* .react_fast_diagram_NodeDefault:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+} */
+
+.react_fast_diagram_NodeDefault.rhomb:before {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 141.42135624 141.42135624' preserveAspectRatio='none'%3E%3Cstyle%3E rect %7B transform-origin: center; transform: rotate(45deg) scale(1.05); %7D %3C/style%3E%3Crect rx='8' x='20.71067812' y='20.71067812' width='100' height='100' /%3E%3C/svg%3E");
+  background: rgb(126, 126, 126);
+}
+
+.react_fast_diagram_NodeDefault.parallelogram:before {
+  transform: skewX(-20deg);
+  background: inherit;
+  border: 1px solid silver;
+  border-radius: 6px;
+}
+
+.react_fast_diagram_NodeDefault.rhomb:after {
+  content: '';
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 141.42135624 141.42135624' preserveAspectRatio='none'%3E%3Cstyle%3E rect %7B transform-origin: center; transform: rotate(45deg) scale(1.05); %7D %3C/style%3E%3Crect rx='8' x='20.71067812' y='20.71067812' width='100' height='100' /%3E%3C/svg%3E");
+  background: inherit;
+  z-index: 1;
+}
+
+.react_fast_diagram_NodeDefault.rhomb {
+  background: transparent;
+}
+
+.react_fast_diagram_NodeDefault.circle {
+  border-radius: 50%;
+}
+
+
 .react_fast_diagram_NodeDefault {
   min-width: 10px;
   min-height: 10px;
   border-radius: 3px;
-  background-color: white;
-  border: #c2c2c2 solid 1px;
+  /* background: #1e1e1e; */
   display: flex;
   flex-direction: column;
   align-items: center;
+  cursor: grab;
 }
+
+.react_fast_diagram_NodeDefault:active {
+  cursor: grabbing;
+}
+
+/*.react_fast_diagram_NodeDefault:hover {*/
+/*  border-color: silver;*/
+/*}*/
+
+
 
 .react_fast_diagram_NodeDefault_Hovered {
   border: #a5d1fc solid 1px;
@@ -72,6 +124,7 @@
 .react_fast_diagram_Background {
   height: 100%;
   width: 100%;
+  background-color: #1e1e1e!important;
 }
 /* Background */
 
@@ -101,17 +154,23 @@
 /* MiniControl */
 
 /* Port */
+.port-wrapper {
+  z-index: 9;
+}
+
 .react_fast_diagram_PortInnerDefault {
-  width: 7px;
-  height: 7px;
+  width: 15px;
+  height: 15px;
   background-color: white;
   border: 1px solid #c2c2c2;
   border-radius: 9999px;
+  opacity: 0;
 }
 
 .react_fast_diagram_PortInnerDefault_Hovered {
   cursor: pointer;
   border-color: #A0F251;
+  opacity: 1;
 }
 
 .react_fast_diagram_PortInnerDefault_Dragging {
@@ -226,7 +285,3 @@
 }
 /* Utils */
 
-
-.diagram_nodes_layer {
-  border: silver 1px solid;
-}

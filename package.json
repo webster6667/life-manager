@@ -47,6 +47,7 @@
     "date-fns": "^4.1.0",
     "electron-updater": "^6.1.7",
     "globalthis": "^1.0.4",
+    "hex-to-rgb": "^1.0.1",
     "immer": "^10.1.1",
     "lodash": "^4.17.21",
     "react-cytoscapejs": "^2.0.0",

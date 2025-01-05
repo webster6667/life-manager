@@ -12,7 +12,14 @@ export function useDiagramWheelHandler(state: IUserInteractionTranslateAndZoom):
 
   const handlers = useMemo<IWheelHandler>(
     () => ({
-      onWheel: ({ direction: [_, yDirection], event, ctrlKey }) => {
+      onWheel: ({ direction: [_, yDirection], event, ctrlKey, target }) => {
+
+        const wasWheelOnNode = (target as HTMLElement).closest('.react_fast_diagram_NodeWrapper')
+
+        if (wasWheelOnNode) {
+          return
+        }
+
         if (!ctrlKey) {
           const yDelta = -event.deltaY
           const xDelta = -event.deltaX
@@ -33,6 +40,7 @@ export function useDiagramWheelHandler(state: IUserInteractionTranslateAndZoom):
           if (yDirection < 0) {
             factor = 1 / factor
           }
+
 
           state.translateAndZoomInto([0, 0], mousePositionOnElement, factor)
         }

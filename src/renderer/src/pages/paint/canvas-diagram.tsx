@@ -87,7 +87,6 @@ export const CanvasDiagram: FC<{ selectedFilePath: string }> = ({ selectedFilePa
       })
     })
 
-    console.log(fileData.links, 'test')
 
     // fileData.links.map((link) => ({
     //   ...link,
@@ -128,12 +127,6 @@ export const CanvasDiagram: FC<{ selectedFilePath: string }> = ({ selectedFilePa
 
   return (
     <Diagram
-      onClick={() => {
-        console.log(
-          { ...storeRef?.current.linksStore.getLink('8fc27326-f46d-08f3-3001-bef1110102ac') },
-          'cli'
-        )
-      }}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       storeRef={storeRef}

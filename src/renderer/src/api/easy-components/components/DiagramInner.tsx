@@ -72,8 +72,14 @@ export const DigramInner = observer<IDiagramInnerProps>((props) => {
   const transform = generateTransform(offset, zoom)
 
   const handleDoubleClick = (event: React.MouseEvent<HTMLDivElement>): void => {
-    const { clientX, clientY, currentTarget } = event
+    const { clientX, clientY, currentTarget, target } = event
     const rect = currentTarget.getBoundingClientRect()
+
+    const wasClickOnNode = (target as HTMLElement).closest('.react_fast_diagram_NodeWrapper')
+
+    if (wasClickOnNode) {
+      return
+    }
 
     // Координаты клика относительно контейнера
     const x = (clientX - rect.left - offset[0]) / zoom
@@ -88,7 +94,7 @@ export const DigramInner = observer<IDiagramInnerProps>((props) => {
         data: {
           width: 300,
           height: 100,
-          shape: 'square'
+          shape: 'rectangle'
         }
       })
     )

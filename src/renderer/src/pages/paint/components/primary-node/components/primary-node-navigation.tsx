@@ -9,7 +9,7 @@ type NavItemValue = NavigationItem['value']
 export const PrimaryNodeNavigation: FC<{
   navigationItemClickHandler: (value: string, navigationValue: NavigationItemValue) => void
 }> = ({ navigationItemClickHandler }) => {
-  const [navigationValue, setNavigationValue] = useState<NavItemValue>()
+  const [navigationValue, setNavigationValue] = useState<NavItemValue>(navigationList[0].value)
 
   return (
     <Box
@@ -28,20 +28,20 @@ export const PrimaryNodeNavigation: FC<{
         ))}
       </Tabs>
 
-      {/*{navigationList && (*/}
-      {/*  <List>*/}
-      {/*    {(navigationList.find(({ value }) => value == navigationValue)['navItems'] || []).map(*/}
-      {/*      ({ label, value }) => (*/}
-      {/*        <ListItemButton*/}
-      {/*          key={value}*/}
-      {/*          onClick={() => navigationItemClickHandler(value, navigationValue)}*/}
-      {/*        >*/}
-      {/*          {label}*/}
-      {/*        </ListItemButton>*/}
-      {/*      )*/}
-      {/*    )}*/}
-      {/*  </List>*/}
-      {/*)}*/}
+      {navigationList && (
+        <List>
+          {(navigationList.find(({ value }) => value == navigationValue)['navItems'] || []).map(
+            ({ label, value }) => (
+              <ListItemButton
+                key={value}
+                onClick={() => navigationItemClickHandler(value, navigationValue)}
+              >
+                {label}
+              </ListItemButton>
+            )
+          )}
+        </List>
+      )}
     </Box>
   )
 }
