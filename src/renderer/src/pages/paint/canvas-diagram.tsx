@@ -13,6 +13,7 @@ const listener = (rootStore: RootStore, selectedFilePath) => {
   // console.log({ ...rootStore.linksStore.links }, 'links')
 
   // console.log(Array.from(rootStore.linksStore.links)[0][1].path, 'test')
+  // console.log(JSON.parse(JSON.stringify(rootStore.export())), selectedFilePath, 'test')
 
   fileSystemAdapter.updateFile(
     selectedFilePath,
@@ -25,7 +26,7 @@ const listener = (rootStore: RootStore, selectedFilePath) => {
 }
 
 // Создаем debounced-функцию, которая будет вызываться только после 300 мс тишины
-const debouncedListener = debounce(listener, 300)
+export const debouncedListener = debounce(listener, 300)
 
 const listenersConfig = (selectedFilePath) => {
   let isReady = false
@@ -117,6 +118,15 @@ export const CanvasDiagram: FC<{ selectedFilePath: string }> = ({ selectedFilePa
 
   const [isInitDataReady, initData] = useDidMount(async () => {
     const data = await fileSystemAdapter.readFile(selectedFilePath)
+
+    try {
+      console.log(JSON.parse(data), 'test')
+    } catch {
+      const lastIndex = data.lastIndexOf('}', data.length - 2);
+    
+      return JSON.parse(data.slice(0, lastIndex + 1))  
+    }
+    
 
     return JSON.parse(data)
   })

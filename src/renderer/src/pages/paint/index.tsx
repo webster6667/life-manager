@@ -10,6 +10,10 @@ import { CanvasDiagram } from '@renderer/pages/paint/canvas-diagram'
 const DiagramWithNodes = observer(() => {
   const [selectedFile, setSelectedFile] = useState<string | undefined>()
 
+  useEffect(() => {
+    localStorage.setItem('selectedFile', selectedFile || '')
+  }, [selectedFile])
+
   return (
     <TemplateGrid
       sidebarContent={() => (

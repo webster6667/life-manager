@@ -10,9 +10,12 @@ import { PrimaryNodeNavigation } from './components/primary-node-navigation'
 import { colorList, shapeList, borderList, textAlignList } from '@renderer/pages/paint/components/star-node/const'
 import { MarkdownEditor } from '@renderer/draft/root-layout/components/mark-down-editor'
 import { NodeContainer, EditorContainer } from './styles'
+import { debouncedListener } from '../../canvas-diagram'
+import { useRootStore } from '@renderer/api/easy-components'
 
 export const StarNode = observer<INodeVisualComponentProps>(({ entity: node }) => {
   const { handleResizeStart, originalWidth, originalHeight } = useResizeShape(node)
+  const rootStore = useRootStore()
   const [shapeOptions, setShapeOptions] = useState({
     shape: node?.data?.shape || shapeList.navItems[0].value,
     color: node?.data?.color || colorList.navItems[0].value,
@@ -81,6 +84,7 @@ export const StarNode = observer<INodeVisualComponentProps>(({ entity: node }) =
         <MarkdownEditor value={description} onChange={(newValue) => {
           setDescription(newValue)
           node.data.content = newValue || ''
+          debouncedListener(rootStore, localStorage.getItem('selectedFile'))
         }} />
       </EditorContainer>
 
