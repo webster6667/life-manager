@@ -1,9 +1,6 @@
-import { Canvas } from './canvas'
-
 import { TemplateGrid } from '@renderer/draft/root-layout/ui/template-grid'
 import { RootSidebar } from '@renderer/pages/paint/root-sidebar'
-import { useContext, useEffect, useRef, useState } from 'react'
-import { Diagram, RootStoreContext } from 'react-easy-diagram'
+import { useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import { CanvasDiagram } from '@renderer/pages/paint/canvas-diagram'
 

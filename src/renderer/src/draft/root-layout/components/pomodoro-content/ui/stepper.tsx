@@ -10,7 +10,7 @@ export const Stepper: FC<{ selectedStepIndex: number; children: ReactNode }> = (
       activeStep={selectedStepIndex}
       alternativeLabel
       connector={<Box sx={{ width: '100px', height: '2px', background: 'silver', mr: '16px' }} />}
-      sx={{
+      sx={({ palette }) => ({
         padding: '0 20px',
         paddingBottom: '60px',
         paddingTop: '30px',
@@ -18,7 +18,7 @@ export const Stepper: FC<{ selectedStepIndex: number; children: ReactNode }> = (
         overflowX: 'scroll',
         position: 'sticky',
         top: '0',
-        background: 'white',
+        background: palette.background.paper,
         zIndex: '9999',
         boxShadow: '0 0 17px #0000007d',
         scrollbarWidth: 'none',
@@ -28,7 +28,7 @@ export const Stepper: FC<{ selectedStepIndex: number; children: ReactNode }> = (
           flexDirection: 'row',
           alignItems: 'center'
         }
-      }}
+      })}
     >
       {children}
     </OriginStepper>

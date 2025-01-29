@@ -6,10 +6,20 @@ export const CommonNav = () => {
   const location = useLocation() // Отслеживание текущего URL
 
   return (
-    <List sx={{ position: 'fixed', top: '0', left: '0', width: '56px' }}>
+    <List
+      sx={(theme) => ({
+        padding: '0',
+        width: '56px',
+        bgcolor: 'background.default',
+        borderRight: `1px solid ${theme.palette.divider}`
+      })}
+    >
       {routes.map(({ path, icon }) => (
         <Link to={path} key={path}>
-          <ListItemButton selected={location?.pathname === path} sx={{ width: '100%' }}>
+          <ListItemButton
+            selected={location?.pathname === path}
+            sx={{ width: '100%', p: '12px 15px' }}
+          >
             <ListItemIcon sx={{ minWidth: 'auto' }}>{icon}</ListItemIcon>
           </ListItemButton>
         </Link>

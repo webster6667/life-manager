@@ -4,7 +4,14 @@ import { canvasId } from '@renderer/pages/paint/const'
 
 export const CanvasWrapper: FC<HTMLProps<HTMLDivElement>> = ({ children, ...props }) => {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }} {...props}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column'
+        // height: '100vh'
+      }}
+      {...props}
+    >
       <Box
         id={canvasId}
         sx={{

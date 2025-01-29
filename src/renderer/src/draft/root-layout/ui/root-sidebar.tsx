@@ -28,7 +28,7 @@ export const RootSidebar: FC<{
 
   return (
     <List
-      sx={{ width: '100%', bgcolor: 'background.paper' }}
+      sx={{ width: '100%', bgcolor: 'background.paper', p: '0', height: '100%', overflow: 'auto' }}
       component="nav"
       aria-labelledby="nested-list-subheader"
     >

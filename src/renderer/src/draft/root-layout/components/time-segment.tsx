@@ -134,7 +134,7 @@ export const TimeSegment: FC<
             fill: '#d00000'
           },
           '& svg#tomato path#up': {
-            fill: 'black'
+            fill: '#008e00'
           },
           '& svg#cucumber path': {
             fill: '#008e00'

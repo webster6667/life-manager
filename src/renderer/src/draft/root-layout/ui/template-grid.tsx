@@ -7,25 +7,24 @@ export const TemplateGrid: FC<{
   selectedContend: () => ReactNode
 }> = ({ selectedContend, sidebarContent }) => {
   return (
-    <Grid container height="100vh">
+    <Grid container height="100%" width="100%">
       <Grid
         size={{ xs: 6, md: 3 }}
         sx={({ palette }) => ({
-          bgcolor: palette.background['paper'],
-          borderRight: '1px solid silver',
-          height: '100vh',
-          overflow: 'scroll'
+          bgcolor: palette.background.paper,
+          borderRight: `1px solid ${palette.divider}`
         })}
+        height="100%"
       >
         {sidebarContent()}
       </Grid>
-      <Grid size={{ xs: 6, md: 9 }} sx={{ position: 'relative' }}>
+      <Grid size={{ xs: 6, md: 9 }} sx={{ position: 'relative' }} height="100%">
         <Stack
           direction="row"
+          height="100%"
           sx={{
             justifyContent: 'center',
-            height: '100vh',
-            overflow: 'scroll'
+            overflow: 'auto'
           }}
         >
           {selectedContend()}

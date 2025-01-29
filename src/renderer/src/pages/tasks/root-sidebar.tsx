@@ -177,7 +177,7 @@ const FileTree: FC<FileTreeProps> = ({
     )
   }
 
-  return <List sx={{ pt: 0 }}>{nodes.map((node) => renderTree(node))}</List>
+  return <List>{nodes.map((node) => renderTree(node))}</List>
 }
 export const RootSidebar: FC<{ selectedFile: string; setSelectedFile: (string) => void }> = ({
   selectedFile,
@@ -226,7 +226,7 @@ export const RootSidebar: FC<{ selectedFile: string; setSelectedFile: (string) =
 
   return (
     <List
-      sx={{ width: '100%', bgcolor: 'background.paper', paddingTop: '0' }}
+      sx={{ width: '100%', bgcolor: 'background.paper', height: '100%' }}
       component="nav"
       aria-labelledby="nested-list-subheader"
     >

@@ -1,20 +1,17 @@
 import { globalStyles } from '@global-styles'
 import { Global } from '@emotion/react'
-import { ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider, CssBaseline } from '@mui/material'
 
 import { primaryTheme } from './theme'
 import { RootLayout } from '@renderer/draft/root-layout'
-import { Box } from '@mui/material'
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { ReactComponent as Tomato } from '@assets/img/icons/tomato/tom.svg'
+import { Stack } from '@mui/material'
 
 import { AccessAlarm, Brush, Assignment } from '@mui/icons-material' // Import MUI icons
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { CommonNav } from '@renderer/draft/common-nav'
 import Paint from '@renderer/pages/paint'
+import { HeaderPlash } from './draft/header-plash'
 
 export const routes = [
   { path: '/pomodoro', label: 'Помидор', component: <RootLayout />, icon: <AccessAlarm /> },
@@ -25,19 +22,23 @@ export const routes = [
 function App(): JSX.Element {
   return (
     <>
-      {/*<CssBaseline />*/}
       <Global styles={globalStyles} />
 
       <ThemeProvider theme={primaryTheme}>
+        <CssBaseline />
+
         <BrowserRouter basename="/">
-          <Box sx={{ paddingLeft: '56px' }}>
+          <HeaderPlash />
+          <Stack flexDirection="row" height="100%" sx={{ bgcolor: 'background.default' }}>
             <CommonNav />
+            {/* <Stack flexGrow="1"> */}
             <Routes>
               {routes.map((route) => (
                 <Route key={route.path} path={route.path} element={route.component} />
               ))}
             </Routes>
-          </Box>
+            {/* </Stack> */}
+          </Stack>
         </BrowserRouter>
       </ThemeProvider>
     </>
