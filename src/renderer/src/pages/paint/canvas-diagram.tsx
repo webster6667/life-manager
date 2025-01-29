@@ -4,7 +4,6 @@ import { addNodeCommand, Diagram, IDiagramInitState, RootStore } from '@easy-dia
 
 import { debounce } from 'lodash'
 import { fileSystemAdapter } from '@renderer/api/fileSystemAdapter'
-import { useDidMount } from '@common-hook'
 import { StarNode } from '@renderer/pages/paint/components/star-node/star-node'
 import { PortalNode } from '@renderer/pages/paint/components/portal-node/portal-node'
 import { IPortState } from 'react-easy-diagram'

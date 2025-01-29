@@ -7,7 +7,12 @@ import { useResizeShape } from '@renderer/pages/paint/hooks/useResizeShape'
 import { ResizeHandle } from '@renderer/pages/paint/components/primary-node/styles'
 import { NavigationItemValue } from './types'
 import { PrimaryNodeNavigation } from './components/primary-node-navigation'
-import { colorList, shapeList, borderList, textAlignList } from '@renderer/pages/paint/components/star-node/const'
+import {
+  colorList,
+  shapeList,
+  borderList,
+  textAlignList
+} from '@renderer/pages/paint/components/star-node/const'
 import { MarkdownEditor } from '@renderer/draft/root-layout/components/mark-down-editor'
 import { NodeContainer, EditorContainer } from './styles'
 import { debouncedListener } from '../../canvas-diagram'
@@ -54,38 +59,55 @@ export const StarNode = observer<INodeVisualComponentProps>(({ entity: node }) =
         />
       )}
 
-      <NodeContainer inFocused={isSelected} className={shapeOptions.shape + ' ' + shapeOptions.color.replace('#', '')} style={{background: isDefaultColor ? '#1e1e1e' : `rgba(${hexToRgb(shapeOptions.color)}, 0.2)`, borderColor: shapeOptions.color, borderStyle: shapeOptions.shape === 'rhomb' ? 'none' : shapeOptions.border, borderWidth: '1px', outline: isSelected ? `2px solid ${shapeOptions.color}` : 'none'}} >
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 141.42135624 141.42135624" preserveAspectRatio="none">
-            <rect 
-              rx="8" 
-              x="20.71067812" 
-              y="20.71067812" 
-              width="100" 
-              height="100" 
-              style={{
-                transformOrigin: "center",
-                transform: "rotate(45deg) scale(1.05)",
-                background: isDefaultColor ? '#1e1e1e' : `rgba(${hexToRgb(shapeOptions.color)}, 0.2)`,
-              }}
-              stroke={isDefaultColor ? '#c676ff' : shapeOptions.color}
-              strokeWidth="3"
-              strokeDasharray={{
+      <NodeContainer
+        inFocused={isSelected}
+        className={shapeOptions.shape + ' ' + shapeOptions.color.replace('#', '')}
+        style={{
+          background: isDefaultColor ? '#1e1e1e' : `rgba(${hexToRgb(shapeOptions.color)}, 0.2)`,
+          borderColor: shapeOptions.color,
+          borderStyle: shapeOptions.shape === 'rhomb' ? 'none' : shapeOptions.border,
+          borderWidth: '1px',
+          outline: isSelected ? `2px solid ${shapeOptions.color}` : 'none'
+        }}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 141.42135624 141.42135624"
+          preserveAspectRatio="none"
+        >
+          <rect
+            rx="8"
+            x="20.71067812"
+            y="20.71067812"
+            width="100"
+            height="100"
+            style={{
+              transformOrigin: 'center',
+              transform: 'rotate(45deg) scale(1.05)',
+              background: isDefaultColor ? '#1e1e1e' : `rgba(${hexToRgb(shapeOptions.color)}, 0.2)`
+            }}
+            stroke={isDefaultColor ? '#c676ff' : shapeOptions.color}
+            strokeWidth="3"
+            strokeDasharray={
+              {
                 solid: '0',
                 dashed: '2',
-                dotted: '1',
-              }[shapeOptions.border]} 
-              fill="none"
-            />
-      </svg>
-
+                dotted: '1'
+              }[shapeOptions.border]
+            }
+            fill="none"
+          />
+        </svg>
       </NodeContainer>
       <EditorContainer className={`align_${shapeOptions.align}`}>
-        <MarkdownEditor value={description} onChange={(newValue) => {
-          setDescription(newValue)
-          node.data.content = newValue || ''
-          debouncedListener(rootStore, localStorage.getItem('selectedFile'))
-        }} />
+        <MarkdownEditor
+          value={description}
+          onChange={(newValue) => {
+            setDescription(newValue)
+            node.data.content = newValue || ''
+            debouncedListener(rootStore, localStorage.getItem('selectedFile'))
+          }}
+        />
       </EditorContainer>
 
       {Array.from(node.ports).map(([id]) => (
