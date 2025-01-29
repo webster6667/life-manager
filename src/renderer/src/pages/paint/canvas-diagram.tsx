@@ -20,7 +20,8 @@ const listener = (rootStore: RootStore, selectedFilePath) => {
     JSON.stringify({
       ...rootStore.export(),
       zoom: rootStore.diagramState.zoom,
-      offset: rootStore.diagramState.offset
+      offset: rootStore.diagramState.offset,
+      type: 'canvas'
     })
   )
 }
@@ -59,7 +60,10 @@ const listenersConfig = (selectedFilePath) => {
   }
 }
 
-export const CanvasDiagram: FC<{ selectedFilePath: string }> = ({ selectedFilePath }) => {
+export const CanvasDiagram: FC<{ selectedFilePath: string; initData: object }> = ({
+  selectedFilePath,
+  initData
+}) => {
   const storeRef = useRef<RootStore>(null)
 
   const handleDragOver = (event: React.DragEvent) => {
@@ -88,7 +92,6 @@ export const CanvasDiagram: FC<{ selectedFilePath: string }> = ({ selectedFilePa
       })
     })
 
-
     // fileData.links.map((link) => ({
     //   ...link,
     //   target: {
@@ -114,25 +117,6 @@ export const CanvasDiagram: FC<{ selectedFilePath: string }> = ({ selectedFilePa
         ports: portalPorts
       })
     )
-  }
-
-  const [isInitDataReady, initData] = useDidMount(async () => {
-    const data = await fileSystemAdapter.readFile(selectedFilePath)
-
-    try {
-      console.log(JSON.parse(data), 'test')
-    } catch {
-      const lastIndex = data.lastIndexOf('}', data.length - 2);
-    
-      return JSON.parse(data.slice(0, lastIndex + 1))  
-    }
-    
-
-    return JSON.parse(data)
-  })
-
-  if (!isInitDataReady) {
-    return <div>process</div>
   }
 
   return (

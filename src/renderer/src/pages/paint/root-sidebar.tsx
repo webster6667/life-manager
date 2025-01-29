@@ -17,7 +17,9 @@ import {
   InsertDriveFile,
   CreateNewFolder,
   NoteAdd,
-  Delete
+  Delete,
+  AccountTree,
+  ViewKanban
 } from '@mui/icons-material'
 import { useDidMount } from '@common-hook'
 import { fileSystemAdapter } from '@renderer/api/fileSystemAdapter'
@@ -26,10 +28,14 @@ import { paintDirectoryName } from '@common-shared/constants'
 
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 
+const creatingKanbanName = 'Новая доска.json'
+const creatingCanvasName = `Новый холст.json`
+const creatingNoteName = `Новая заметка.json`
+
 interface FileTreeProps {
   nodes: FileTreeNode[]
   deleteHandler: (path: string) => void
-  createHandler: (type: 'dir' | 'file', path: string) => void
+  createHandler: (type: 'dir' | 'canvas' | 'kanban' | 'note', path: string) => void
   selectedFile: string
   setSelectedFile: (string) => void
 }
@@ -96,9 +102,11 @@ const FileTree: FC<FileTreeProps> = ({
     const isOpen = openNodes[node.path] || false
     const clearPath = node.path.replace('/Users/aleksandr/ElectronLayout/', '')
     const newDirName = getUniqueFileName(node.children || [], `Новая папка`)
-    const newFileName = getUniqueFileName(node.children || [], `Новый файл.json`)
+    const newKanbanName = getUniqueFileName(node.children || [], creatingKanbanName)
+    const newCanvasName = getUniqueFileName(node.children || [], creatingCanvasName)
+    const newNoteName = getUniqueFileName(node.children || [], creatingNoteName)
+
     const newDirPath = `${clearPath}/${newDirName}`
-    const newFilePath = `${clearPath}/${newFileName}`
 
     return (
       <React.Fragment key={node.path}>
@@ -136,9 +144,21 @@ const FileTree: FC<FileTreeProps> = ({
                 </ListItemIcon>
                 <ListItemIcon
                   sx={{ width: '30px', minWidth: 'auto' }}
-                  onClick={() => createHandler('file', newFilePath)}
+                  onClick={() => createHandler('note', `${clearPath}/${newNoteName}`)}
                 >
                   <NoteAdd />
+                </ListItemIcon>
+                <ListItemIcon
+                  sx={{ width: '30px', minWidth: 'auto' }}
+                  onClick={() => createHandler('canvas', `${clearPath}/${newCanvasName}`)}
+                >
+                  <AccountTree />
+                </ListItemIcon>
+                <ListItemIcon
+                  sx={{ width: '30px', minWidth: 'auto' }}
+                  onClick={() => createHandler('kanban', `${clearPath}/${newKanbanName}`)}
+                >
+                  <ViewKanban />
                 </ListItemIcon>
               </>
             )}
@@ -194,11 +214,11 @@ export const RootSidebar: FC<{ selectedFile: string; setSelectedFile: (string) =
     setCanvasFileList(canvasReadFiles)
   })
 
-  const createHandler = async (type: 'dir' | 'file', path: string) => {
+  const createHandler = async (type: 'dir' | 'canvas' | 'kanban' | 'note', path: string) => {
     if (type === 'dir') {
       await fileSystemAdapter.createDirectory(path)
     } else {
-      await fileSystemAdapter.createFile(path, '{}')
+      await fileSystemAdapter.createFile(path, `{"type": "${type}"}`)
     }
 
     const canvasReadFiles = (await fileSystemAdapter.readDir(paintDirectoryName, {
@@ -251,12 +271,30 @@ export const RootSidebar: FC<{ selectedFile: string; setSelectedFile: (string) =
         </Button>
         <Button
           onClick={() => {
-            const newFileName = getUniqueFileName(canvasFileList, 'Новый файл.json')
+            const newFileName = getUniqueFileName(canvasFileList, creatingKanbanName)
 
-            createHandler('file', `${paintDirectoryName}/${newFileName}`)
+            createHandler('kanban', `${paintDirectoryName}/${newFileName}`)
           }}
         >
-          Создать файл
+          Создать доску
+        </Button>
+        <Button
+          onClick={() => {
+            const newFileName = getUniqueFileName(canvasFileList, creatingCanvasName)
+
+            createHandler('canvas', `${paintDirectoryName}/${newFileName}`)
+          }}
+        >
+          Создать диаграмму
+        </Button>
+        <Button
+          onClick={() => {
+            const newFileName = getUniqueFileName(canvasFileList, creatingNoteName)
+
+            createHandler('note', `${paintDirectoryName}/${newFileName}`)
+          }}
+        >
+          Создать заметку
         </Button>
       </Stack>
     </List>
