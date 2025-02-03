@@ -6,6 +6,7 @@ import { CanvasDiagram } from '@renderer/pages/paint/canvas-diagram'
 import { useDidMount } from '@renderer/front-shared/hooks'
 import { fileSystemAdapter } from '@renderer/api/fileSystemAdapter'
 import { NoteView } from './note-view'
+import { KanbanBoard } from './kanban'
 
 const SelectedDataByType = ({ selectedFilePath }: { selectedFilePath: string }) => {
   const [isInitDataReady, initData] = useDidMount(async () => {
@@ -31,7 +32,7 @@ const SelectedDataByType = ({ selectedFilePath }: { selectedFilePath: string }) 
   return {
     note: <NoteView selectedFilePath={selectedFilePath} initData={initData} />,
     canvas: <CanvasDiagram selectedFilePath={selectedFilePath} initData={initData} />,
-    kanban: <div>kanban</div>
+    kanban: <KanbanBoard selectedFilePath={selectedFilePath} initData={initData} />
   }[selectedFileType]
 }
 
