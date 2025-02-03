@@ -1,13 +1,15 @@
 import React from "react";
 
-import { GlobalStyles } from "@front-shared/styles/global-styles";
-import { StoryBookGlobalStyles } from "@my-storybook/styles/global-styles";
+import { globalStyles } from "./../../../src/renderer/src/front-shared/styles/global-styles/global-styles";
+import { StoryBookGlobalStyles } from "./../../styles/global-styles/index";
 import { StoryFn } from "@storybook/react";
+import { Global } from '@emotion/react'
+
 
 export const withGlobalStyle = (Story: StoryFn) => {
   return (
     <>
-      <GlobalStyles />
+      <Global styles={globalStyles} />
       <StoryBookGlobalStyles />
       <Story />
     </>
