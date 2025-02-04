@@ -4,8 +4,24 @@ import React, { useMemo } from 'react'
 import type { ILinkVisualComponentProps } from '@easy-diagram/states/linksSettings'
 import type { IComponentDefinition } from '@easy-diagram/states/visualComponentState'
 
+function shiftPath(d, dx, dy) {
+  return d.replace(
+    /([MC])\s*([\d.]+)\s+([\d.]+)|([\d.]+)\s+([\d.]+)/g,
+    (match, cmd, x1, y1, x2, y2) => {
+      if (cmd) {
+        // Первые координаты после команды (например, "M 682.75 402")
+        return `${cmd} ${parseFloat(x1) + dx} ${parseFloat(y1) + dy}`
+      } else {
+        // Обычные координаты (например, "742.75 402")
+        return `${parseFloat(x2) + dx} ${parseFloat(y2) + dy}`
+      }
+    }
+  )
+}
+
 export const LinkDefault: React.FC<ILinkVisualComponentProps<ILinkDefaultSettings>> = observer(
-  ({ entity, settings, bind }) => {
+  ({ entity, settings, offset = {}, bind }) => {
+    const { left = 0, top = 0 } = offset
     const mainStylingOptions = useMemo<IUseStylingOptions>(
       () => ({
         removeDefaultClasses: settings?.removeDefaultClasses,
@@ -42,9 +58,13 @@ export const LinkDefault: React.FC<ILinkVisualComponentProps<ILinkDefaultSetting
 
     return (
       <g>
-        <path d={entity.path.svgPath} className={mainStyling.className} style={mainStyling.style} />
         <path
-          d={entity.path.svgPath}
+          d={shiftPath(entity.path.svgPath, -Math.abs(left), -Math.abs(top))}
+          className={mainStyling.className}
+          style={mainStyling.style}
+        />
+        <path
+          d={shiftPath(entity.path.svgPath, -Math.abs(left), -Math.abs(top))}
           className={secondaryStyling.className}
           style={secondaryStyling.style}
           {...bind()}

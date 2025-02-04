@@ -49,6 +49,7 @@ export interface ReactEditorProps
 export interface MarkdownEditorProps extends Partial<Omit<ReactEditorProps, 'stringHandler'>> {
   value: string
   onChange: (newValue: string) => void
+  readonly?: boolean
 }
 
 /**
@@ -59,7 +60,8 @@ export const MarkdownEditor: FC<PropsWithChildren<MarkdownEditorProps>> = ({
   children,
   theme,
   value,
-  onChange
+  onChange,
+  readonly = false
 }) => {
   const extensions = useCallback(
     () => [
@@ -106,12 +108,13 @@ export const MarkdownEditor: FC<PropsWithChildren<MarkdownEditorProps>> = ({
           onChange={({ state }) => {
             const markdownExtension = manager.getExtension(MarkdownExtension)
             const markdown = markdownExtension?.getMarkdown(state) // Конвертация в Markdown
-            if (markdown) {
+            if (markdown && onChange) {
               onChange(markdown) // Обновляем состояние
             }
           }}
           i18nFormat={i18nFormat}
           autoFocus={false}
+          editable={!readonly}
         >
           <EditorComponent />
           {children}

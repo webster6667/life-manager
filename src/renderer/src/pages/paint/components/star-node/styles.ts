@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
 
-export const EditorContainer = styled.div<{inFocused?: boolean}>`
+export const EditorContainer = styled.div<{ inFocused?: boolean }>`
   width: 100%;
   height: 100%;
   position: relative;
@@ -35,11 +35,9 @@ export const EditorContainer = styled.div<{inFocused?: boolean}>`
     justify-content: center;
     align-items: center;
   }
-
 `
 
-
-export const NodeContainer = styled.div<{inFocused?: boolean}>`
+export const NodeContainer = styled.div<{ inFocused?: boolean }>`
   width: 100%;
   height: 100%;
   border-radius: 4px;
@@ -86,5 +84,4 @@ export const NodeContainer = styled.div<{inFocused?: boolean}>`
     border-color: #c676ff !important;
     outline-color: #c676ff !important;
   }
-
 `
