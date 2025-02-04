@@ -85,3 +85,23 @@ export const NodeContainer = styled.div<{ inFocused?: boolean }>`
     outline-color: #c676ff !important;
   }
 `
+
+export const ResizeHandle = styled.div`
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: transparent;
+  bottom: 0;
+  right: 0;
+  cursor: nwse-resize;
+  z-index: 99;
+`
+
+export const DiamondContainer = styled.div`
+  position: relative;
+`
+
+export const Label = styled.div`
+  user-select: none;
+  pointer-events: auto;
+`

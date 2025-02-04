@@ -1,10 +1,9 @@
 import { observer } from 'mobx-react-lite'
 import { INodeVisualComponentProps, Port } from '@renderer/api/easy-components'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import hexToRgb from 'hex-to-rgb'
 
 import { useResizeShape } from '@renderer/pages/paint/hooks/useResizeShape'
-import { ResizeHandle } from '@renderer/pages/paint/components/primary-node/styles'
 import { NavigationItemValue } from './types'
 import { PrimaryNodeNavigation } from './components/primary-node-navigation'
 import {
@@ -14,7 +13,7 @@ import {
   textAlignList
 } from '@renderer/pages/paint/components/star-node/const'
 import { MarkdownEditor } from '@renderer/draft/root-layout/components/mark-down-editor'
-import { NodeContainer, EditorContainer } from './styles'
+import { NodeContainer, EditorContainer, ResizeHandle } from './styles'
 import { debouncedListener } from '../../canvas-diagram'
 import { useRootStore } from '@renderer/api/easy-components'
 
@@ -111,7 +110,7 @@ export const StarNode = observer<INodeVisualComponentProps>(({ entity: node }) =
       </EditorContainer>
 
       {Array.from(node.ports).map(([id]) => (
-        <Port id={id} key={id} />
+        <Port id={id} key={id} nodeData={{ id: node.id, position: node.position }} />
       ))}
       <ResizeHandle data-element="resizer" onMouseDown={handleResizeStart} />
     </div>

@@ -59,11 +59,13 @@ export const LinkDefault: React.FC<ILinkVisualComponentProps<ILinkDefaultSetting
     return (
       <g>
         <path
+          // d={entity.path.svgPath}
           d={shiftPath(entity.path.svgPath, -Math.abs(left), -Math.abs(top))}
           className={mainStyling.className}
           style={mainStyling.style}
         />
         <path
+          // d={entity.path.svgPath}
           d={shiftPath(entity.path.svgPath, -Math.abs(left), -Math.abs(top))}
           className={secondaryStyling.className}
           style={secondaryStyling.style}

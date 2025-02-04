@@ -2,15 +2,10 @@ import { observer } from 'mobx-react-lite'
 import {
   IDiagramInitState,
   INodeVisualComponentProps,
-  LinkCreationState,
   LinkDefault,
-  LinkState,
-  Port,
-  useLinkUserInteraction,
-  useRootStore,
-  LinkWrapper
+  Port
 } from '@renderer/api/easy-components'
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 import { useDidMount } from '@common-hook'
 import { fileSystemAdapter } from '@renderer/api/fileSystemAdapter'
@@ -19,7 +14,7 @@ import { hexToRgb } from '@mui/material'
 import { borderList, colorList, shapeList, textAlignList } from '../star-node/const'
 import { MarkdownEditor } from '@renderer/draft/root-layout/components/mark-down-editor'
 
-export const StarNode = ({ node }) => {
+export const StarNode = ({ node, offsetPosition, portalNodeId }) => {
   const {
     width = 300,
     height = 200,
@@ -89,7 +84,16 @@ export const StarNode = ({ node }) => {
         <MarkdownEditor value={content} readonly />
       </EditorContainer>
       {Array.from(node.ports).map(({ id }) => {
-        return <Port id={id + '_' + node.id} key={id} />
+        return (
+          <Port
+            id={id + '_' + node.id}
+            key={id}
+            nodeData={{
+              id: portalNodeId,
+              position: offsetPosition
+            }}
+          />
+        )
       })}
     </div>
   )
@@ -104,9 +108,9 @@ const portalSize = {
   width: 0
 }
 
-export const PortalNode = observer<INodeVisualComponentProps>(({ entity: node }) => {
+export const PortalNode = observer<INodeVisualComponentProps>(({ entity: portalNode }) => {
   const [isInitDataReady, initData] = useDidMount<IDiagramInitState>(async () => {
-    const { portalFilePath } = JSON.parse(JSON.stringify(node.data || '')) || {}
+    const { portalFilePath } = JSON.parse(JSON.stringify(portalNode.data || '')) || {}
     const data = await fileSystemAdapter.readFile(portalFilePath)
 
     JSON.parse(data).nodes.forEach(({ position, data }) => {
@@ -137,35 +141,37 @@ export const PortalNode = observer<INodeVisualComponentProps>(({ entity: node })
     return JSON.parse(data)
   })
 
-  console.log(offsetParams, portalSize, 'size')
-
   return (
     <div
       className="react_fast_diagram_NodeDefault"
       style={{
-        border: node.selected ? '#6eb7ff solid 1px' : '',
+        border: portalNode.selected ? '#6eb7ff solid 1px' : '',
         width: `${portalSize.width - offsetParams.left}px`,
         height: `${portalSize.height - offsetParams.top}px`
       }}
       onMouseDown={(e) => {
-        e.stopPropagation()
+        // e.stopPropagation()
       }}
     >
       {isInitDataReady &&
         initData.nodes.map((node) => {
+          const offsetPosition = [
+            node.position[0] - offsetParams.left,
+            node.position[1] - offsetParams.top
+          ]
           return (
             <div
               id={node.id}
               key={node.id}
               style={{
                 position: 'absolute',
-                left: `${node.position[0] - offsetParams.left}px`,
-                top: `${node.position[1] - offsetParams.top}px`,
+                left: `${offsetPosition[0]}px`,
+                top: `${offsetPosition[1]}px`,
                 width: `${node.data.width}px`,
                 height: `${node.data.height}px`
               }}
             >
-              <StarNode node={node} />
+              <StarNode node={node} portalNodeId={portalNode.id} offsetPosition={offsetPosition} />
             </div>
           )
         })}

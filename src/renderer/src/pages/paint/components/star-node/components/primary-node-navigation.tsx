@@ -32,7 +32,7 @@ const shapeIcons = {
 const lineIcons = {
   solid,
   dashed,
-  dotted,
+  dotted
 }
 
 const alignIcons = {
@@ -67,18 +67,29 @@ export const PrimaryNodeNavigation: FC<{
           background: 'silver'
         }}
       >
-        <ToggleButton value={'shape'} aria-label={'shape'}>
-          <img style={{ width: '20px' }} src={shapeIcons[shapeOptions.shape]} alt="" />
-        </ToggleButton>
-        <ToggleButton value={'color'} aria-label={'color'}>
-          <img style={{ width: '20px' }} src={colorPalette} alt="" />
-        </ToggleButton>
-        <ToggleButton value={'border'} aria-label={'border'}>
-          <img style={{ width: '20px' }} src={lineIcons[shapeOptions.border]} alt="" />
-        </ToggleButton>
-        <ToggleButton value={'align'} aria-label={'align'}>
-          <img style={{ width: '20px' }} src={alignIcons[shapeOptions.align]} alt="" />
-        </ToggleButton>
+        {shapeOptions.shape && (
+          <ToggleButton value={'shape'} aria-label={'shape'}>
+            <img style={{ width: '20px' }} src={shapeIcons[shapeOptions.shape]} alt="" />
+          </ToggleButton>
+        )}
+
+        {shapeOptions.color && (
+          <ToggleButton value={'color'} aria-label={'color'}>
+            <img style={{ width: '20px' }} src={colorPalette} alt="" />
+          </ToggleButton>
+        )}
+
+        {shapeOptions.border && (
+          <ToggleButton value={'border'} aria-label={'border'}>
+            <img style={{ width: '20px' }} src={lineIcons[shapeOptions.border]} alt="" />
+          </ToggleButton>
+        )}
+
+        {shapeOptions.align && (
+          <ToggleButton value={'align'} aria-label={'align'}>
+            <img style={{ width: '20px' }} src={alignIcons[shapeOptions.align]} alt="" />
+          </ToggleButton>
+        )}
       </ToggleButtonGroup>
 
       {navigationValue && (

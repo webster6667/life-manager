@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
-import { PrimaryNodeModel } from '@renderer/pages/paint/components/primary-node'
 import { useRootStore } from '@renderer/api/easy-components'
 
-export const useResizeShape = (node: PrimaryNodeModel) => {
+export const useResizeShape = (node) => {
   const { width = 300, height = 200 } = JSON.parse(JSON.stringify(node?.data || '')) || {}
   const rootStore = useRootStore()
-  const zoom = rootStore.diagramState.zoom
+  const zoom = rootStore?.diagramState?.zoom || 0
 
   const [isResizing, setIsResizing] = useState(false)
   const [startX, setStartX] = useState(0)
