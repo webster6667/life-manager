@@ -7,7 +7,7 @@ export const PomadoroLayout: FC<{
   content: () => ReactNode
 }> = ({ isLoading, content, stepper }) => {
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%', position: 'relative', paddingTop: '190px' }}>
       {isLoading ? (
         <CircularProgress />
       ) : (
