@@ -56,19 +56,28 @@ export const LinkDefault: React.FC<ILinkVisualComponentProps<ILinkDefaultSetting
 
     if (!entity?.path) return null
 
+    const { color = '#c2c2c2', border = 'solid' } = entity?.data || {}
+
     return (
       <g>
         <path
-          // d={entity.path.svgPath}
           d={shiftPath(entity.path.svgPath, -Math.abs(left), -Math.abs(top))}
-          className={mainStyling.className}
+          className={mainStyling.className + ' react_fast_diagram_LinkPrimary_Line'}
           style={mainStyling.style}
+          stroke={color}
+          strokeDasharray={
+            {
+              dashed: '10, 10',
+              solid: '0, 0',
+              dotted: '1, 10'
+            }[border]
+          }
         />
         <path
-          // d={entity.path.svgPath}
           d={shiftPath(entity.path.svgPath, -Math.abs(left), -Math.abs(top))}
           className={secondaryStyling.className}
           style={secondaryStyling.style}
+          stroke={color}
           {...bind()}
         />
       </g>

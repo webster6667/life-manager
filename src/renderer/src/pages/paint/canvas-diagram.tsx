@@ -8,7 +8,7 @@ import { StarNode } from '@renderer/pages/paint/components/star-node/star-node'
 import { PortalNode } from '@renderer/pages/paint/components/portal-node/portal-node'
 import { IPortState } from 'react-easy-diagram'
 
-const listener = (rootStore: RootStore, selectedFilePath) => {
+export const listener = (rootStore: RootStore, selectedFilePath) => {
   // console.log({ ...rootStore.linksStore.links }, 'links')
 
   // console.log(Array.from(rootStore.linksStore.links)[0][1].path, 'test')

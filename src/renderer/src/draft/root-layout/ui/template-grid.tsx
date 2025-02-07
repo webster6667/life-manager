@@ -12,7 +12,8 @@ export const TemplateGrid: FC<{
         size={{ xs: 6, md: 3 }}
         sx={({ palette }) => ({
           bgcolor: palette.background.paper,
-          borderRight: `1px solid ${palette.divider}`
+          borderRight: `1px solid ${palette.divider}`,
+          overflow: 'auto'
         })}
         height="100%"
       >
