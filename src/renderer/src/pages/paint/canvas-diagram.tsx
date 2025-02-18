@@ -7,6 +7,8 @@ import { fileSystemAdapter } from '@renderer/api/fileSystemAdapter'
 import { StarNode } from '@renderer/pages/paint/components/star-node/star-node'
 import { PortalNode } from '@renderer/pages/paint/components/portal-node/portal-node'
 import { IPortState } from 'react-easy-diagram'
+import { TemplateGrid } from '@renderer/draft/root-layout/ui/template-grid'
+import { CanvasNav } from './canvas-nav'
 
 export const listener = (rootStore: RootStore, selectedFilePath) => {
   // console.log({ ...rootStore.linksStore.links }, 'links')
@@ -119,32 +121,37 @@ export const CanvasDiagram: FC<{ selectedFilePath: string; initData: object }> =
   }
 
   return (
-    <Diagram
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
-      storeRef={storeRef}
-      initState={initData}
-      settings={{
-        nodes: {
-          components: {
-            star: {
-              component: StarNode,
-              settings: {
-                ports: [
-                  { id: 'left', position: 'left-center' },
-                  { id: 'top', position: 'top-center' },
-                  { id: 'right', position: 'right-center' },
-                  { id: 'bottom', position: 'bottom-center' }
-                ]
+    <TemplateGrid
+      sidebarRightContent={() => <CanvasNav />}
+      selectedContend={() => (
+        <Diagram
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          storeRef={storeRef}
+          initState={initData}
+          settings={{
+            nodes: {
+              components: {
+                star: {
+                  component: StarNode,
+                  settings: {
+                    ports: [
+                      { id: 'left', position: 'left-center' },
+                      { id: 'top', position: 'top-center' },
+                      { id: 'right', position: 'right-center' },
+                      { id: 'bottom', position: 'bottom-center' }
+                    ]
+                  }
+                },
+                portal: {
+                  component: PortalNode
+                }
               }
             },
-            portal: {
-              component: PortalNode
-            }
-          }
-        },
-        callbacks: listenersConfig(selectedFilePath)
-      }}
+            callbacks: listenersConfig(selectedFilePath)
+          }}
+        />
+      )}
     />
   )
 }
