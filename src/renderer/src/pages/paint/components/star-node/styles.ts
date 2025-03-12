@@ -35,6 +35,14 @@ export const EditorContainer = styled.div<{ inFocused?: boolean }>`
     justify-content: center;
     align-items: center;
   }
+
+  .remirror-collapsible-list-item-button {
+    background: silver !important;
+  }
+
+  .remirror-collapsible-list-item-closed .remirror-collapsible-list-item-button {
+    background: violet !important;
+  }
 `
 
 export const NodeContainer = styled.div<{ inFocused?: boolean }>`

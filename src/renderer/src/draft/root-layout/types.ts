@@ -31,6 +31,7 @@ export type TimeSegmentProps = {
 export type StepperData = {
   timeSegmentList: TimeSegmentProps[]
   backLog: Task[]
+  noteOfDay?: string
   skippedSeconds: number
   planningSeconds: number
   notPlanningSeconds: number

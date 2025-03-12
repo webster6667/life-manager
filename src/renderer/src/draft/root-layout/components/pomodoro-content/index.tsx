@@ -20,6 +20,8 @@ import { TimeList } from '@renderer/draft/root-layout/components/pomodoro-conten
 import { Remove, Add } from '@mui/icons-material'
 import { DropDown } from '@renderer/draft/root-layout/components/pomodoro-content/ui/drop-down'
 import { format } from 'date-fns'
+import { EditorContainer } from '@renderer/pages/paint/components/star-node/styles'
+import { MarkdownEditor } from '../mark-down-editor'
 
 export const PomodoroContent: FC<{
   contentData: DateContent
@@ -44,7 +46,8 @@ export const PomodoroContent: FC<{
     incrementPlanningSecond,
     incrementSkippedSecond,
     incrementNotPlanningSecond,
-    toggleTimeObserving
+    toggleTimeObserving,
+    updateNoteOfDayValue
   } = useTaskManager(contentData, selectedFilePath)
 
   const {
@@ -55,7 +58,8 @@ export const PomodoroContent: FC<{
     planningSeconds,
     skippedSeconds,
     notPlanningSeconds,
-    isTimeObserving = true
+    isTimeObserving = true,
+    noteOfDay
   } = dayData || {}
 
   const {
@@ -232,6 +236,19 @@ export const PomodoroContent: FC<{
               )}
             </FooterNav>
           )}
+
+          <br />
+
+          <DropDown label="Мысли дня">
+            <EditorContainer
+              style={{ border: '1px solid #636363', borderRadius: '6px', padding: '15px 0' }}
+            >
+              <MarkdownEditor
+                value={noteOfDay}
+                onChange={(newValue) => updateNoteOfDayValue(newValue)}
+              />
+            </EditorContainer>
+          </DropDown>
         </>
       )}
     />

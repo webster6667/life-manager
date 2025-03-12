@@ -59,6 +59,13 @@ export const useTaskManager = (contentData: DateContent, selectedFilePath: strin
     return newTask
   }
 
+  // Хендлер для изменения заметки дня
+  const updateNoteOfDayValue = (newValue: string) => {
+    setDayData((draft) => {
+      draft.noteOfDay = newValue
+    })
+  }
+
   // Хендлер для изменения value задачи в backlog или taskList
   const updateTaskValue = (taskId: number, newValue: string, segmentIndex?: number) => {
     setDayData((draft) => {
@@ -294,6 +301,7 @@ export const useTaskManager = (contentData: DateContent, selectedFilePath: strin
     setDayData,
     toggleNotPlaning,
     incrementNotPlanningSecond,
-    toggleTimeObserving
+    toggleTimeObserving,
+    updateNoteOfDayValue
   }
 }

@@ -4,6 +4,7 @@ import { FC, ReactNode } from 'react'
 import { MarkdownEditor } from '@renderer/draft/root-layout/components/mark-down-editor'
 import { Delete } from '@mui/icons-material'
 import { useTaskManager } from '@renderer/draft/root-layout/hooks/use-task-manager'
+import { EditorContainer } from '@renderer/pages/paint/components/star-node/styles'
 
 type useTaskManagerMethods = ReturnType<typeof useTaskManager>
 
@@ -33,7 +34,7 @@ export const TaskList: FC<{
           <List>
             {taskList.map(({ isFinished, description = '', value, id }, index) => (
               <ListItem
-                key={index}
+                key={id}
                 alignItems={'flex-start'}
                 sx={{
                   display: 'flex',
@@ -54,12 +55,17 @@ export const TaskList: FC<{
                     }}
                     fullWidth
                   />
-                  <MarkdownEditor
-                    value={description}
-                    onChange={(newValue) =>
-                      onTaskDescriptionChange(id, newValue, selectedStepIndex)
-                    }
-                  />
+                  <EditorContainer
+                    data-id={id}
+                    style={{ border: '1px solid #636363', borderRadius: '6px', padding: '15px 0' }}
+                  >
+                    <MarkdownEditor
+                      value={description}
+                      onChange={(newValue) =>
+                        onTaskDescriptionChange(id, newValue, selectedStepIndex)
+                      }
+                    />
+                  </EditorContainer>
                 </Stack>
                 {navigation(id)}
                 <Fab size="small" color="error" aria-label="add">
