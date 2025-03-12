@@ -6,6 +6,11 @@
     "custom.d.ts"
   ],
   "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "isolatedModules": false,
     "composite": true,
     "noUnusedLocals": false,
     "noImplicitReturns": false,
